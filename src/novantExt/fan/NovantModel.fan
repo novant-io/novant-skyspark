@@ -20,9 +20,8 @@ const class NovantModel : ConnModel
     connProto = Etc.makeDict([
       "dis":        "Novant Conn",
       "novantConn": Marker.val,
-      "uri":        `http://host/novant/`,
-      "deviceId":   "",
-      "apiKey":     "",
+      "deviceId":   "dv_",
+      "apiKey":     "ak_",
     ])
   }
 
