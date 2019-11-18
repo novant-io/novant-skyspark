@@ -22,6 +22,7 @@ class Build : BuildPod
     meta    = [
                 "org.name":     "Novant LLC",
                 "license.name": "Commercial",
+                "skyarc.icons": "true",
               ]
     depends = ["sys 1.0",
                "haystack 3.0",
@@ -33,7 +34,8 @@ class Build : BuildPod
     srcDirs = [`fan/`,
                `test/`]
     resDirs = [`locale/`,
-               `lib/`]
+               `lib/`,
+               `svg/`]
     index   =
     [
       "skyarc.ext": "novantExt::NovantExt",

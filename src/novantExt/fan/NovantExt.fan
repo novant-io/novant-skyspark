@@ -16,6 +16,7 @@ using connExt
 @ExtMeta
 {
   name    = "novant"
+  icon    = "novant"
   icon24  = `fan://frescoRes/img/iconMissing24.png`
   icon72  = `fan://frescoRes/img/iconMissing72.png`
   depends = ["conn"]
