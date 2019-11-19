@@ -4,7 +4,7 @@
 // All Rights Reserved
 //
 // History:
-//   18 Nov 19   Andy Frank   Creation
+//   18 Nov 2019   Andy Frank   Creation
 //
 
 using build
@@ -25,6 +25,8 @@ class Build : BuildPod
                 "skyarc.icons": "true",
               ]
     depends = ["sys 1.0",
+               "util 1.0",
+               "web 1.0",
                "haystack 3.0",
                "folio 3.0",
                "axon 3.0",
