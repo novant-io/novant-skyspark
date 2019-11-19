@@ -23,5 +23,12 @@ class NovantConn : Conn
   override Void onClose() {}
 
   override Dict onPing() { Etc.emptyDict }
+
+  override Grid onLearn(Obj? arg)
+  {
+    gb := GridBuilder()
+    gb.addColNames(["dis","point","kind","novantHis"])
+    return gb.toGrid
+  }
 }
 

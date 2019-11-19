@@ -23,5 +23,10 @@ using connExt
 }
 const class NovantExt : ConnImplExt
 {
+  static NovantExt? cur(Bool checked := true)
+  {
+    Context.cur.ext("novant", checked)
+  }
+
   @NoDoc new make() : super(NovantModel()) {}
 }

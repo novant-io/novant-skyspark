@@ -15,12 +15,17 @@ using axon
 const class NovantLib
 {
   **
-  ** Test stub function
+  ** Perform a synchronous learn read on the given connector.
+  ** Following columns are returned:
+  **   - 'dis': display name of point
+  **   - 'point': point marker
+  **   - 'kind': point kind
+  **   - 'novantHis': address to sync trend data for point
   **
-  @Axon
-  static Str novantTestFan()
+  @Axon { admin = true }
+  static Grid novantLearn(Obj conn, Obj? arg := null)
   {
-    "Test novant Fantom function"
+    NovantExt.cur.connActor(conn).learn(arg)
   }
 }
 
