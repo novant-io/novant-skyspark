@@ -27,5 +27,15 @@ const class NovantLib
   {
     NovantExt.cur.connActor(conn).learn(arg)
   }
+
+  **
+  ** Import the latest data from an connector to the local
+  ** history database, for each point provided.
+  **
+  @Axon { admin = true }
+  static Obj? novantSyncHis(Obj points, Obj? span := null)
+  {
+    NovantExt.cur.syncHis(points, span)
+  }
 }
 
