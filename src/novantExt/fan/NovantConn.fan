@@ -26,7 +26,7 @@ class NovantConn : Conn
 
   override Dict onPing()
   {
-    // TODO: add a low-cost /ping endpoint
+    // TODO: add a low-cost / ping endpoint
     reqPoints
     return Etc.emptyDict
   }
@@ -41,7 +41,7 @@ class NovantConn : Conn
       id   := p["id"]
       dis  := p["name"]
       kind := "Number"
-      his  := "novant${id}"
+      his  := "${id}"
       gb.addRow([dis, Marker.val, kind, his])
     }
     return gb.toGrid
