@@ -1,6 +1,6 @@
 .DS_Store
 icons.sketch
-fan.props
-lib/
-temp/
-var/
+/fan.props
+/lib/
+/temp/
+/var/
