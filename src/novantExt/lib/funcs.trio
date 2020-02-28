@@ -1,0 +1,19 @@
+//
+// Copyright (c) 2019, Novant LLC
+// All Rights Reserved
+//
+// History:
+//   18 Nov 2019   Andy Frank   Creation
+//
+
+--------------------------------------------------------------------------
+name:novantTestAxon
+func
+doc:
+  Test stub function
+src:
+  () => do
+    "Test novant Axon function"
+  end
+--------------------------------------------------------------------------
+

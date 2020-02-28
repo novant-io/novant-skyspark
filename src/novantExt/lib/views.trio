@@ -1,0 +1,17 @@
+//
+// Copyright (c) 2020, Novant LLC
+// All Rights Reserved
+//
+// History:
+//   28 Feb 2020  Andy Frank  Creation
+//
+
+--------------------------------------------------------------------------
+view: novantConnDiag
+appName: conn
+dis: Novant
+admin
+src:
+  view: { inherit:"table" }
+  data: { expr:"{}" }
+--------------------------------------------------------------------------

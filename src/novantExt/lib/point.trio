@@ -1,0 +1,34 @@
+//
+// Copyright (c) 2019, Novant LLC
+// All Rights Reserved
+//
+// History:
+//   18 Nov 2019   Andy Frank   Creation
+//
+
+--------------------------------------------------------------------------
+def: ^novantPoint
+is: ^connPoint
+doc:
+  Point which synchronizes data via the Novant connector.
+--------------------------------------------------------------------------
+def: ^novantConnRef
+is: ^ref
+of: ^novantConn
+tagOn: ^novantPoint
+doc:
+  Used on a proxy point to reference its parent `novantConn`
+--------------------------------------------------------------------------
+def: ^novantCur
+is: ^str
+tagOn: ^novantPoint
+doc:
+  Novant address to use for reading the current value.
+--------------------------------------------------------------------------
+def: ^novantHis
+is: ^str
+tagOn: ^novantPoint
+doc:
+  Novant address to use for reading historical data.
+--------------------------------------------------------------------------
+
