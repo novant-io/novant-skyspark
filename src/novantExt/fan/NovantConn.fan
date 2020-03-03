@@ -89,7 +89,7 @@ class NovantConn : Conn
     return JsonInStream(c.resStr.in).readJson
   }
 
-  private Str apiKey()   { rec->apiKey   }
+  private Str apiKey()   { ext.proj.passwords.get(rec.id.toStr) ?: "" }
   private Str deviceId() { rec->deviceId }
 }
 
