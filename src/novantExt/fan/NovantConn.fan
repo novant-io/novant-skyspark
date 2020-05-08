@@ -18,7 +18,14 @@ class NovantConn : Conn
 {
   new make(ConnActor actor, Dict rec) : super(actor, rec) {}
 
-  override Obj? receive(ConnMsg msg) { return super.receive(msg) }
+  override Obj? receive(ConnMsg msg)
+  {
+    switch (msg.id)
+    {
+      case "nvSync": NovantSync.syncHis(this, msg.a, log); return null
+      default:       return super.receive(msg)
+    }
+  }
 
   override Void onOpen() {}
 
@@ -49,35 +56,8 @@ class NovantConn : Conn
 
   override Obj? onSyncHis(ConnPoint point, Span span)
   {
-    try
-    {
-      // TODO:
-      //   - support for dates={start..end} param
-      //   - support for point_id flag
-      //   - support for passing in time_zone?
-      //   - support for non-Number types?
-      items := HisItem[,]
-      span.eachDay |date|
-      {
-        c := WebClient(`https://api.novant.io/v1/trends`)
-        c.reqHeaders["Authorization"] = "Basic " + "${apiKey}:".toBuf.toBase64
-        c.postForm(["device_id": deviceId, "date": date.toStr])
-
-        Map map := JsonInStream(c.resStr.in).readJson
-        (map["data"] as List).each |Map entry|
-        {
-          id  := point.rec["novantHis"].toStr.toInt
-          ts  := DateTime.fromIso(entry["ts"]).toTimeZone(point.tz)
-          val := entry["p${id}"]
-          if (val != null) items.add(HisItem(ts, Number.make(val)))
-        }
-      }
-      return point.updateHisOk(items, span)
-    }
-    catch (Err err)
-    {
-      return point.updateHisErr(err)
-    }
+    // onSyncHis is a no-op; all his sync is handled internally
+    null
   }
 
   ** Request points list from configured device.
@@ -89,7 +69,7 @@ class NovantConn : Conn
     return JsonInStream(c.resStr.in).readJson
   }
 
-  private Str apiKey()   { ext.proj.passwords.get(rec.id.toStr) ?: "" }
-  private Str deviceId() { rec->deviceId }
+  internal Str apiKey()   { ext.proj.passwords.get(rec.id.toStr) ?: "" }
+  internal Str deviceId() { rec->deviceId }
 }
 

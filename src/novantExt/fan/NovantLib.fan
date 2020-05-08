@@ -6,8 +6,9 @@
 //   18 Nov 2019   Andy Frank   Creation
 //
 
-using haystack
 using axon
+using connExt
+using haystack
 
 **
 ** Axon functions for novant
@@ -30,12 +31,18 @@ const class NovantLib
 
   **
   ** Import the latest data from an connector to the local
-  ** history database, for each point provided.
+  ** history database.  This will import history for all
+  ** points under given 'conn'. The import will be queued
+  ** a background actor, and this method will return
+  ** immeditatly.
   **
   @Axon { admin = true }
-  static Obj? novantSyncHis(Obj points, Obj? span := null)
+  static Void novantSync(Obj conn, Obj? span := null)
   {
-    NovantExt.cur.syncHis(points, span)
+    // TODO: how to handle tz?
+    if (span is Date)     span = DateSpan.make(span)
+    if (span is DateSpan) span = ((DateSpan)span).toSpan(TimeZone.cur)
+    NovantExt.cur.connActor(conn).send(ConnMsg("nvSync", span))
   }
 }
 
