@@ -1,0 +1,36 @@
+# NovantExt Spec
+
+The `novantExt` provides integration support for sync trend data from one
+or more Novant devices into SkySpark easily and efficiently.
+
+## novantConn
+
+Each Novant device is modeled 1:1 with a `novantConn` rec, which stores API
+access credentials and information used to maintain synchronization:
+
+  * `apiKey`: the Novant API key used to access this device
+  * `deviceId`: the Novant device id to synchronize
+  * `novantSyncFreq`: how often a device should sync
+       - `none`: do not automatically keep this device synced
+       - `daily`: sync data daily
+
+## Sync Design
+
+The SkySpark connector framework provides an API for doing his syncs, however
+this API works at the point level, which would be a very inefficient
+implementation using the Novant REST API. So instead this extension includes a
+custom implementation for managing trend data syncs.
+
+The primary API is `NovantSync.syncHis`:
+
+    ** Sync all points under given conn for the given 'span'.
+    static Void syncHis(NovantConn conn, Span? span, Log log)
+
+This method will manage performing the sync on a background actor. All syncs,
+for all conns, route to single ActorPool managed by the `NovantExt` to allow
+fine tuning performance.
+
+
+
+
+
