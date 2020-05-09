@@ -17,8 +17,6 @@ using connExt
 {
   name    = "novant"
   icon    = "novant"
-  icon24  = `fan://frescoRes/img/iconMissing24.png`
-  icon72  = `fan://frescoRes/img/iconMissing72.png`
   depends = ["conn"]
 }
 const class NovantExt : ConnImplExt
@@ -28,5 +26,11 @@ const class NovantExt : ConnImplExt
     Context.cur.ext("novant", checked)
   }
 
-  @NoDoc new make() : super(NovantModel()) {}
+  @NoDoc new make() : super(NovantModel())
+  {
+    this.projActor = NovantProjActor(this)
+  }
+
+  ** The project actor for the current project.
+  const NovantProjActor projActor
 }

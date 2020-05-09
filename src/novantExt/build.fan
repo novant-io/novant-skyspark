@@ -26,6 +26,7 @@ class Build : BuildPod
               ]
     depends = ["sys 1.0",
                "util 1.0",
+               "concurrent 1.0",
                "web 1.0",
                "haystack 3.0",
                "folio 3.0",
