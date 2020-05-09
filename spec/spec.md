@@ -14,6 +14,11 @@ access credentials and information used to maintain synchronization:
        - `none`: do not automatically keep this device synced
        - `daily`: sync data daily
 
+## ProjActor
+
+Enabling `novantExt` will start a project-wide `ProjActor` instance to manage
+running background work for all conns in a project.
+
 ## Sync Design
 
 The SkySpark connector framework provides an API for doing his syncs, however
@@ -29,6 +34,7 @@ The primary API is `NovantSync.syncHis`:
 This method will manage performing the sync on a background actor. All syncs,
 for all conns, route to single ActorPool managed by the `NovantExt` to allow
 fine tuning performance.
+
 
 
 
