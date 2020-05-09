@@ -18,10 +18,11 @@ const class NovantModel : ConnModel
   new make() : super(NovantModel#.pod)
   {
     connProto = Etc.makeDict([
-      "dis":        "Novant Conn",
-      "novantConn": Marker.val,
-      "deviceId":   "dv_",
-      "apiKey":     "ak_",
+      "dis":            "Novant Conn",
+      "novantConn":     Marker.val,
+      "novantDeviceId": "dv_",
+      "apiKey":         "ak_",
+      "novantSyncFreq": "daily",
     ])
   }
 

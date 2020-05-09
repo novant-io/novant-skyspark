@@ -39,18 +39,29 @@ const class NovantProjActor
   }
 
   ** Handle _init callback.
-  private Void _init() {}
+  private Void _init()
+  {
+    now := Duration.nowTicks
+    Actor.locals["s"] = now + syncFreq
+  }
 
   ** Handle poll callback
   private Void _poll()
   {
-    // TODO
+    now  := Duration.nowTicks
+    nextSync := Actor.locals["s"] as Int
+
+    if (now > nextSync)
+    {
+      ext.log.info("doHisSync")
+      Actor.locals["s"] = now + syncFreq
+    }
   }
 
   private const NovantExt ext
   private const ActorPool pool
   private const Actor actor
 
-  private const Duration pollFreq := 1sec  // freq to poll for work
-  private const Duration syncFreq := 1min  // freq to check for sync jobs
+  private const Duration pollFreq := 1sec   // freq to poll for work
+  private const Int syncFreq := 1min.ticks  // freq to check for sync jobs
 }

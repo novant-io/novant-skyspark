@@ -9,10 +9,13 @@ Each Novant device is modeled 1:1 with a `novantConn` rec, which stores API
 access credentials and information used to maintain synchronization:
 
   * `apiKey`: the Novant API key used to access this device
-  * `deviceId`: the Novant device id to synchronize
+  * `novantDeviceId`: the Novant device id to synchronize
   * `novantSyncFreq`: how often a device should sync
        - `none`: do not automatically keep this device synced
        - `daily`: sync data daily
+  * `novantLastSync`: DateTime ts of last sync, or `null` for none
+  * `hisStart`: DateTime of start of his data, or `null` for none
+  * `hisEnd`: DateTime of end of his data, or `null` for none
 
 ## ProjActor
 
