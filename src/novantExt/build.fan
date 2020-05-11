@@ -18,7 +18,7 @@ class Build : BuildPod
   {
     podName = "novantExt"
     summary = "Novant Connector"
-    version = Version("1.0")
+    version = Version("0.1")
     meta    = [
                 "org.name":     "Novant LLC",
                 "license.name": "Commercial",
@@ -36,7 +36,8 @@ class Build : BuildPod
                "fresco 3.0"]
     srcDirs = [`fan/`,
                `test/`]
-    resDirs = [`locale/`,
+    resDirs = [`doc/`,
+               `locale/`,
                `lib/`,
                `svg/`]
     index   =
