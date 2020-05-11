@@ -39,7 +39,6 @@ const class NovantLib
   @Axon { admin = true }
   static Void novantSync(Obj conn, Obj? span := null)
   {
-    // TODO: how to handle tz?
     if (span is Date)     span = DateSpan.make(span)
     if (span is DateSpan) span = ((DateSpan)span).toSpan(TimeZone.cur)
     NovantExt.cur.connActor(conn).send(ConnMsg("nvSync", span))

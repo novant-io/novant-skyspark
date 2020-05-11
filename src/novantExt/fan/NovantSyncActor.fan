@@ -12,11 +12,11 @@ using util
 using web
 
 *************************************************************************
-** NovantSyncActorPool
+** NovantSyncActor
 *************************************************************************
 
-** NovantSyncActorPool manages dispatch NovantSyncWorkers.
-const class NovantSyncActorPool
+** NovantSyncActor manages dispatching NovantSyncWorkers.
+const class NovantSyncActor
 {
   new make(NovantExt ext)
   {
@@ -39,6 +39,9 @@ const class NovantSyncActorPool
   ***
   Void dispatchSync(NovantConn conn, Span? span)
   {
+// TODO
+if (span == null) span = Span.today
+
     worker := NovantSyncWorker(conn, span, ext.log)
     actor  := Actor(pool) |m| { worker.sync; return null }
     actor.send("run")

@@ -20,9 +20,10 @@ class NovantConn : Conn
 
   override Obj? receive(ConnMsg msg)
   {
+    NovantExt ext := ext
     switch (msg.id)
     {
-      case "nvSync": NovantSync.syncHis(this, msg.a, log); return null
+      case "nvSync": ext.syncActor.dispatchSync(this, msg.a); return null
       default:       return super.receive(msg)
     }
   }
