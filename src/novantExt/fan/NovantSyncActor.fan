@@ -69,21 +69,19 @@ const class NovantSyncWorker
   ** Performance REST API call and updateHisOk/Err work.
   Void sync()
   {
-    conn := this.conn
-    log.info("---> sync ${conn.dis} @ ${span}")
-
-    /*
     // TODO: this needs to moved to a background actor
     // TODO:
-    //   - support for dates={start..end} param?
     //   - support for point_id(s) filter?
     //   - support for passing in time_zone?
     //   - support for non-Number types?
 
     try
     {
+      conn := this.conn
       span.eachDay |date|
       {
+        start := Duration.now
+
         // request data
         c := WebClient(`https://api.novant.io/v1/trends`)
         c.reqHeaders["Authorization"] = "Basic " + "${conn.apiKey}:".toBuf.toBase64
@@ -111,10 +109,15 @@ const class NovantSyncWorker
           }
           catch (Err err) { point.updateHisErr(err) }
         }
+
+        // log metrics
+        end := Duration.now
+        dur := (end - start).toMillis
+        log.info("syncHis successful for '${conn.dis}' @ ${dayspan}" +
+                 " [${dur.toLocale}ms, ${conn.points.size} points]")
       }
     }
-    catch (Err err) { log.err("syncHis failed", err) }
-    */
+    catch (Err err) { log.err("syncHis failed for '${conn.dis}'", err) }
   }
 
   private NovantConn conn() { connUnsafe.val }
