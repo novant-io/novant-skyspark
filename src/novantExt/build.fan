@@ -36,8 +36,7 @@ class Build : BuildPod
                "fresco 3.0"]
     srcDirs = [`fan/`,
                `test/`]
-    resDirs = [`doc/`,
-               `locale/`,
+    resDirs = [`locale/`,
                `lib/`,
                `svg/`]
     index   =
