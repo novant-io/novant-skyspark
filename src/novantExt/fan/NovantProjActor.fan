@@ -20,6 +20,7 @@ const class NovantProjActor
     this.ext   = ext
     this.pool  = ActorPool { it.name="NovantProjActor"; it.maxThreads=1 }
     this.actor = Actor(pool) |m| { _receive(m) }
+    this.syncPool = NovantSyncActorPool(ext)
     this.actor.send("init")
   }
 
@@ -53,14 +54,15 @@ const class NovantProjActor
 
     if (now > nextSync)
     {
-      ext.log.info("doHisSync")
       Actor.locals["s"] = now + syncFreq
+      syncPool.checkSyncs
     }
   }
 
   private const NovantExt ext
   private const ActorPool pool
   private const Actor actor
+  private const NovantSyncActorPool syncPool
 
   private const Duration pollFreq := 1sec   // freq to poll for work
   private const Int syncFreq := 1min.ticks  // freq to check for sync jobs
