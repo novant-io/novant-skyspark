@@ -7,6 +7,7 @@
 //
 
 using concurrent
+using connExt
 
 *************************************************************************
 ** NovantProjActor
@@ -48,13 +49,20 @@ const class NovantProjActor
   ** Handle poll callback
   private Void _poll()
   {
-    now  := Duration.nowTicks
+    now := Duration.nowTicks
     nextSync := Actor.locals["s"] as Int
 
-    if (now > nextSync)
+    if (now > nextSync && ext.proj.isSteadyState)
     {
       Actor.locals["s"] = now + syncFreq
-      ext.syncActor.checkSyncs
+      ext.proj.readAll("novantConn").each |rec|
+      {
+        // SyncActor will short-circuit if we are already up-to-date
+        // so design is simpiler to just force the sync check and let
+        // downstream handle the no-op
+        if (rec["novantSyncFreq"] == "daily")
+          ext.connActor(rec).send(ConnMsg("nvSync"))
+      }
     }
   }
 

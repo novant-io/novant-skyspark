@@ -74,6 +74,5 @@ class NovantConn : Conn
   internal Str deviceId()   { rec->deviceId }
   internal Date? hisStart() { rec["novantHisStart"] }
   internal Date? hisEnd()   { rec["novantHisEnd"]   }
-  internal DateTime? lastSync() { rec["novantLastSync"] }
 }
 

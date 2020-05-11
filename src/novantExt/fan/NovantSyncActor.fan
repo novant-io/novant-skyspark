@@ -25,12 +25,6 @@ const class NovantSyncActor
     this.pool = ActorPool { it.name="NovantSyncActorPool"; it.maxThreads=10 }
   }
 
-  ** Check for any connectors that need to be synced.
-  Void checkSyncs()
-  {
-    // TODO
-  }
-
   **
   ** Dispatch a new background actor to perform a trend sync for
   ** the given 'conn' and 'span' range.  If 'span' is 'null', a
@@ -41,7 +35,7 @@ const class NovantSyncActor
   Void dispatchSync(NovantConn conn, DateSpan? span)
   {
     // if span not defined, determine the range based on hisEnd;
-    // if still need then this conn is already synced thru today
+    // if still null then this conn is already synced thru today
     // and we can short-circuit
     if (span == null) span = defSpan(conn.hisEnd)
     if (span == null) return
@@ -86,7 +80,6 @@ const class NovantSyncWorker
   ** Performance REST API call and updateHisOk/Err work.
   Void sync()
   {
-    // TODO: this needs to moved to a background actor
     // TODO:
     //   - support for point_id(s) filter?
     //   - support for passing in time_zone?
@@ -129,7 +122,7 @@ const class NovantSyncWorker
 
         // update hisStart/End
         if (conn.hisStart == null) commit("novantHisStart", date)
-        if (conn.hisEnd != null && conn.hisEnd < date) commit("novantHisEnd", date)
+        if (conn.hisEnd == null || conn.hisEnd < date) commit("novantHisEnd", date)
 
         // log metrics
         end := Duration.now

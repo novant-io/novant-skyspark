@@ -13,9 +13,8 @@ access credentials and information used to maintain synchronization:
   * `novantSyncFreq`: how often a device should sync
        - `none`: do not automatically keep this device synced
        - `daily`: sync data daily
-  * `novantLastSync`: DateTime ts of last sync, or `null` for none
-  * `hisStart`: DateTime of start of his data, or `null` for none
-  * `hisEnd`: DateTime of end of his data, or `null` for none
+  * `novantHisStart`: Date of start of his data, or `null` for none
+  * `novantHisEnd`: Date of end of his data, or `null` for none
 
 ## ProjActor
 
@@ -29,14 +28,9 @@ this API works at the point level, which would be a very inefficient
 implementation using the Novant REST API. So instead this extension includes a
 custom implementation for managing trend data syncs.
 
-The primary API is `NovantSync.syncHis`:
-
-    ** Sync all points under given conn for the given 'span'.
-    static Void syncHis(NovantConn conn, Span? span, Log log)
-
-This method will manage performing the sync on a background actor. All syncs,
-for all conns, route to single ActorPool managed by the `NovantExt` to allow
-fine tuning performance.
+The primary API is `NovantSyncActor` and `NovantSyncWorker`, which performe the
+sync on a background actor. All syncs, for all conns, route to single ActorPool
+managed by the `NovantExt` to allow fine tuning performance.
 
 
 
