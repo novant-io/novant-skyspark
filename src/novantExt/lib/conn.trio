@@ -25,10 +25,12 @@ is: ^str
 enum: ["none", "daily"]
 tagOn: ^novantConn
 --------------------------------------------------------------------------
-defx: ^hisStart
+def: ^novantHisStart
+is: ^date
 tagOn: ^novantConn
 --------------------------------------------------------------------------
-defx: ^hisEnd
+def: ^novantHisEnd
+is: ^date
 tagOn: ^novantConn
 --------------------------------------------------------------------------
 

@@ -70,7 +70,10 @@ class NovantConn : Conn
     return JsonInStream(c.resStr.in).readJson
   }
 
-  internal Str apiKey()   { ext.proj.passwords.get(rec.id.toStr) ?: "" }
-  internal Str deviceId() { rec->deviceId }
+  internal Str apiKey()     { ext.proj.passwords.get(rec.id.toStr) ?: "" }
+  internal Str deviceId()   { rec->deviceId }
+  internal Date? hisStart() { rec["novantHisStart"] }
+  internal Date? hisEnd()   { rec["novantHisEnd"]   }
+  internal DateTime? lastSync() { rec["novantLastSync"] }
 }
 

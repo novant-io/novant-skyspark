@@ -7,6 +7,7 @@
 //
 
 using concurrent
+using folio
 using haystack
 using util
 using web
@@ -37,14 +38,30 @@ const class NovantSyncActor
   ** If 'novantLastSync' is not defined, only 'Date.today' will
   ** be synced.
   ***
-  Void dispatchSync(NovantConn conn, Span? span)
+  Void dispatchSync(NovantConn conn, DateSpan? span)
   {
-// TODO
-if (span == null) span = Span.today
+    // if span not defined, determine the range based on hisEnd;
+    // if still need then this conn is already synced thru today
+    // and we can short-circuit
+    if (span == null) span = defSpan(conn.hisEnd)
+    if (span == null) return
 
     worker := NovantSyncWorker(conn, span, ext.log)
     actor  := Actor(pool) |m| { worker.sync; return null }
     actor.send("run")
+  }
+
+  ** Get default span based on given 'hisEnd' date, or return 'null'
+  ** if the span is already up-to-date.
+  internal static DateSpan? defSpan(Date? hisEnd)
+  {
+    // short-circuit if already up-to-date
+    today := Date.today
+    if (hisEnd == today) return null
+
+    // find range
+    start := hisEnd==null ? today : hisEnd+1day
+    return DateSpan(start, today)
   }
 
   private const NovantExt ext
@@ -59,7 +76,7 @@ if (span == null) span = Span.today
 const class NovantSyncWorker
 {
   ** Constructor.
-  new make(NovantConn conn, Span span, Log log)
+  new make(NovantConn conn, DateSpan span, Log log)
   {
     this.connUnsafe = Unsafe(conn)
     this.span = span
@@ -110,18 +127,30 @@ const class NovantSyncWorker
           catch (Err err) { point.updateHisErr(err) }
         }
 
+        // update hisStart/End
+        if (conn.hisStart == null) commit("novantHisStart", date)
+        commit("novantHisEnd", date)
+
         // log metrics
         end := Duration.now
         dur := (end - start).toMillis
         log.info("syncHis successful for '${conn.dis}' @ ${dayspan}" +
-                 " [${dur.toLocale}ms, ${conn.points.size} points]")
+                 " [${conn.points.size} points, ${dur.toLocale}ms]")
       }
     }
     catch (Err err) { log.err("syncHis failed for '${conn.dis}'", err) }
   }
 
+  ** Update conn tag.
+  private Void commit(Str tag, Obj val)
+  {
+    // pull rec to make sure we have the most of up-to-date
+    rec := conn.ext.proj.readById(conn.rec.id)
+    conn.ext.proj.commit(Diff(conn.rec, [tag:val]))
+  }
+
   private NovantConn conn() { connUnsafe.val }
   private const Unsafe connUnsafe
-  private const Span span
+  private const DateSpan span
   private const Log log
 }

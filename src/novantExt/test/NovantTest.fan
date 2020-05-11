@@ -15,9 +15,20 @@ using skyarcd
 **
 class NovantTest : Test
 {
-  Void testStub()
+  Void testDefSpan()
   {
-    verifyEq(123, 123)
+    verifySpan(null,               Date.today,         Date.today)
+    verifySpan(Date("2020-05-03"), Date("2020-05-04"), Date.today)
+    verifySpan(Date.today-1day,    Date.today,         Date.today)
+    verifyNull(NovantSyncActor.defSpan(Date.today))
+  }
+
+  private Void verifySpan(Date? hisEnd, Date start, Date end)
+  {
+    span := NovantSyncActor.defSpan(hisEnd)
+// echo("> $span [$span.start .. $span.end]")
+    verifyEq(span.start, start)
+    verifyEq(span.end,   end)
   }
 }
 
