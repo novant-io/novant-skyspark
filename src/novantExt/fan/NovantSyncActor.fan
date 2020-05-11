@@ -129,7 +129,7 @@ const class NovantSyncWorker
 
         // update hisStart/End
         if (conn.hisStart == null) commit("novantHisStart", date)
-        commit("novantHisEnd", date)
+        if (conn.hisEnd != null && conn.hisEnd < date) commit("novantHisEnd", date)
 
         // log metrics
         end := Duration.now
