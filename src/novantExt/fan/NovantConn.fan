@@ -71,7 +71,7 @@ class NovantConn : Conn
   }
 
   internal Str apiKey()     { ext.proj.passwords.get(rec.id.toStr) ?: "" }
-  internal Str deviceId()   { rec->deviceId }
+  internal Str deviceId()   { rec->novantDeviceId }
   internal Date? hisStart() { rec["novantHisStart"] }
   internal Date? hisEnd()   { rec["novantHisEnd"]   }
 }
