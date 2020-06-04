@@ -1,6 +1,8 @@
 # Changelog
 
-## Version 0.2 (working)
+## Version 0.3 (working)
+
+## Version 0.2 (4-Jun-2020)
 * Remove icon.png (not needed for StackHub)
 * Fix `deviceId` -> `novantDeviceId` rename in NovantConn
 
