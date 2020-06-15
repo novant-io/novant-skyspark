@@ -12,6 +12,7 @@ appName: conn
 dis: Novant
 admin
 src:
-  view: { inherit:"table" }
-  data: { expr:"{}" }
+  view:  { inherit:"table" }
+  clear: { dis:"Clear History" action:"novantHisClear" sel multi }
+  data:  { expr:"novantReadConns()" }
 --------------------------------------------------------------------------

@@ -9,6 +9,7 @@
 using axon
 using connExt
 using haystack
+using skyarcd
 
 **
 ** Axon functions for novant
@@ -41,6 +42,24 @@ const class NovantLib
   {
     if (span is Date) span = DateSpan.make(span)
     NovantExt.cur.connActor(conn).send(ConnMsg("nvSync", span))
+  }
+
+  **
+  ** Clear all history for all points for given conn.
+  **
+  @Axon { admin=true }
+  static Void novantHisClear(Obj conns)
+  {
+    echo("hisClear: TODO")
+  }
+
+  @NoDoc @Axon { admin=true }
+  static Grid novantReadConns()
+  {
+    g := GridBuilder()
+    g.addColNames(["id","novantDeviceId","novantHisStart","novantHisEnd"])
+    g.addGridRows(Context.cur.readAll("novantConn"))
+    return g.toGrid
   }
 }
 
