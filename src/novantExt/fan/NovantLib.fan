@@ -50,15 +50,35 @@ const class NovantLib
   @Axon { admin=true }
   static Void novantHisClear(Obj conns)
   {
-    echo("hisClear: TODO")
+    recs := SysLib.toRecList(conns)
+    echo("hisClear: ${recs}")
   }
 
   @NoDoc @Axon { admin=true }
   static Grid novantReadConns()
   {
     g := GridBuilder()
-    g.addColNames(["id","novantDeviceId","novantHisStart","novantHisEnd"])
-    g.addGridRows(Context.cur.readAll("novantConn"))
+    g.addColNames(["id","deviceId","numPoints","hisStart","hisEnd","numHisDays"])
+
+    cx := Context.cur
+    cx.readAll("novantConn").each |r|
+    {
+      numPoints := cx.readAll("point and novantConnRef == ${r.id.toCode}").size
+
+      Date? start := r["novantHisStart"]
+      Date? end   := r["novantHisEnd"]
+      numHis := start == null || end == null ? null : end-start
+
+      g.addRow([
+        r.id,
+        r->novantDeviceId,
+        Number.makeInt(numPoints),
+        start,
+        end,
+        numHis == null ? null : Number.makeDuration(numHis),
+      ])
+    }
+
     return g.toGrid
   }
 }
