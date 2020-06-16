@@ -12,7 +12,8 @@ appName: conn
 dis: Novant
 admin
 src:
-  view:  { inherit:"table" }
-  clear: { dis:"Clear History" action:"novantHisClear" select multi }
-  data:  { expr:"novantReadConns()" }
+  view:     { inherit:"table" }
+  syncHis:  { dis:"Sync History" action:"novantSync" select multi }
+  clearHis: { dis:"Clear History" action:"novantHisClear" select multi }
+  data:     { expr:"novantReadConns()" }
 --------------------------------------------------------------------------

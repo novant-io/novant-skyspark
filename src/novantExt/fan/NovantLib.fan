@@ -8,6 +8,7 @@
 
 using axon
 using connExt
+using folio
 using haystack
 using skyarcd
 
@@ -50,8 +51,16 @@ const class NovantLib
   @Axon { admin=true }
   static Void novantHisClear(Obj conns)
   {
+    cx   := Context.cur
     recs := SysLib.toRecList(conns)
-    echo("hisClear: ${recs}")
+    recs.each |c|
+    {
+      pts := cx.readAll("point and novantConnRef==${c.id.toCode}")
+      cx.call("hisClear", [pts, null])
+
+      tags := ["novantHisStart":Remove.val, "novantHisEnd":Remove.val]
+      cx.proj.commit(Diff(c, tags))
+    }
   }
 
   @NoDoc @Axon { admin=true }
