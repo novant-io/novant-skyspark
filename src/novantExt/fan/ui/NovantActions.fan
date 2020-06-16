@@ -15,10 +15,12 @@ using ui
 {
   static Void sync(UiView view)
   {
-    NSyncDialog(view.sel).open /*doOpen |span|
-    {
-      Win.cur.alert("> $span")
-    }*/
+    NSyncDialog(view.sel)
+      .onOk |d,span| {
+        sel := view.sel.map |r| { r.id }
+        invoke(view, d, "novantSync", [sel,span])
+      }
+      .open
   }
 
   static Void clearHis(UiView view)
@@ -38,16 +40,20 @@ using ui
       it.onAction |key|
       {
         if (key != "yes") return true
-
         sel  := view.sel.map |r| { r.id }
-        expr := UiUtil.makeAxonCall("novantHisClear", [sel])
-        req  := Etc.makeMapGrid(null, ["expr":expr.toStr])
-        ax   := Flash.showActivity(view, "$<ui::working>...")
-        view.session.api.call("eval", req)
-          .onOk  |res| { ax.onClose { dlg.close; view.update }; ax.close }
-          .onErr |err| { ax.close; Flash.showErr(dlg, err)  }
+        invoke(view, dlg, "novantHisClear", [sel])
         return false
       }
     }.open
+  }
+
+  static Void invoke(UiView view, Dialog dlg, Str func, Obj[] args)
+  {
+    expr := UiUtil.makeAxonCall(func, args)
+    req  := Etc.makeMapGrid(null, ["expr":expr.toStr])
+    ax   := Flash.showActivity(view, "$<ui::working>...")
+    view.session.api.call("eval", req)
+      .onOk  |res| { ax.onClose { dlg.close; view.update }; ax.close }
+      .onErr |err| { ax.close; Flash.showErr(dlg, err)  }
   }
 }

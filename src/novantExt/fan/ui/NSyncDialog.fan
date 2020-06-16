@@ -30,7 +30,8 @@ using ui
       start = d
     }
 
-    endDis := Date.yesterday.toLocale("MMM D, YYYY")
+    end    := Date.yesterday
+    endDis := end.toLocale("MMM D, YYYY")
 
     this.input = Input.makeForTag(UiSession.cur, "date", start)
 
@@ -67,12 +68,19 @@ using ui
     this.onAction |key|
     {
       if (key == "cancel") return true
-//      span := syncLast.checked ? null : input.save
-//      onSync(points, span)
-      return true
+      span := DateSpan(input.save, end)
+      cbOk?.call(this, span)
+      return false
     }
+  }
+
+  This onOk(|NSyncDialog,DateSpan| f)
+  {
+    this.cbOk = f
+    return this
   }
 
   private const Dict[] conns
   private Input input
+  private Func? cbOk
 }
