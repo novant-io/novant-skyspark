@@ -50,12 +50,12 @@ const class NovantSyncActor
   internal static DateSpan? defSpan(Date? hisEnd)
   {
     // short-circuit if already up-to-date
-    today := Date.today
-    if (hisEnd == today) return null
+    yesterday := Date.yesterday
+    if (hisEnd >= yesterday) return null
 
     // find range
-    start := hisEnd==null ? today : hisEnd+1day
-    return DateSpan(start, today)
+    start := hisEnd==null ? yesterday : hisEnd+1day
+    return DateSpan(start, yesterday)
   }
 
   private const NovantExt ext
