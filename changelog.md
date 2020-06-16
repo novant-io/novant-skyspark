@@ -1,11 +1,13 @@
 # Changelog
 
 ## Version 0.3 (working)
-* Add `novantHisClear` func
-* Add simple ConnTool to sync/clear his
+* Misc fixes to make sync more reliable
+* Rework `novantSync` to skip already synced days be default
 * Update `novantSync` to allow taking multiple conns
 * Fix sync behavoir to never sync past `Date.yesterday`
-* Misc fixes to make sync more reliable
+* Add `{force}` option support to `novantSync`
+* Add `novantHisClear` func
+* Add simple ConnTool to sync/clear his using UI
 
 ## Version 0.2 (4-Jun-2020)
 * Remove icon.png (not needed for StackHub)
