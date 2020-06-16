@@ -39,10 +39,13 @@ const class NovantLib
   ** immeditatly.
   **
   @Axon { admin = true }
-  static Void novantSync(Obj conn, Obj? span := null)
+  static Void novantSync(Obj conns, Obj? span := null)
   {
     if (span is Date) span = DateSpan.make(span)
-    NovantExt.cur.connActor(conn).send(ConnMsg("nvSync", span))
+    SysLib.toRecList(conns).each |conn|
+    {
+      NovantExt.cur.connActor(conn).send(ConnMsg("nvSync", span))
+    }
   }
 
   **

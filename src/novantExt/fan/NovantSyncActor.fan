@@ -90,6 +90,9 @@ const class NovantSyncWorker
       conn := this.conn
       span.eachDay |date|
       {
+        // never sync past yesterday
+        if (date > Date.yesterday) return
+
         start := Duration.now
 
         // request data
@@ -121,8 +124,8 @@ const class NovantSyncWorker
         }
 
         // update hisStart/End
-        if (conn.hisStart == null) commit("novantHisStart", date)
-        if (conn.hisEnd == null || conn.hisEnd < date) commit("novantHisEnd", date)
+        if (conn.hisStart == null || date < conn.hisStart) commit("novantHisStart", date)
+        if (conn.hisEnd   == null || conn.hisEnd < date)   commit("novantHisEnd", date)
 
         // log metrics
         end := Duration.now
