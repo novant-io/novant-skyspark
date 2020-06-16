@@ -32,7 +32,7 @@ const class NovantSyncActor
   ** If 'novantLastSync' is not defined, only 'Date.today' will
   ** be synced.
   ***
-  Void dispatchSync(NovantConn conn, DateSpan? span)
+  Void dispatchSync(NovantConn conn, DateSpan? span, Dict? opts)
   {
     // if span not defined, determine the range based on hisEnd;
     // if still null then this conn is already synced thru today
@@ -40,7 +40,7 @@ const class NovantSyncActor
     if (span == null) span = defSpan(conn.hisEnd)
     if (span == null) return
 
-    worker := NovantSyncWorker(conn, span, ext.log)
+    worker := NovantSyncWorker(conn, span, opts, ext.log)
     actor  := Actor(pool) |m| { worker.sync; return null }
     actor.send("run")
   }
@@ -70,11 +70,14 @@ const class NovantSyncActor
 const class NovantSyncWorker
 {
   ** Constructor.
-  new make(NovantConn conn, DateSpan span, Log log)
+  new make(NovantConn conn, DateSpan span, Dict opts, Log log)
   {
     this.connUnsafe = Unsafe(conn)
     this.span = span
     this.log  = log
+
+    // opts
+    this.force = opts.has("force")
   }
 
   ** Performance REST API call and updateHisOk/Err work.
@@ -88,12 +91,23 @@ const class NovantSyncWorker
     try
     {
       conn := this.conn
+      hisSpan := conn.hisStart != null && conn.hisEnd != null
+        ? DateSpan(conn.hisStart, conn.hisEnd)
+        : null
+
       span.eachDay |date|
       {
+        ts1 := Duration.now
+
         // never sync past yesterday
         if (date > Date.yesterday) return
 
-        start := Duration.now
+        // skip if already synced unless force=true
+        if (!force && hisSpan != null && hisSpan.contains(date))
+        {
+          log.info("already synced ${date}")
+          return
+        }
 
         // request data
         c := WebClient(`https://api.novant.io/v1/trends`)
@@ -128,8 +142,8 @@ const class NovantSyncWorker
         if (conn.hisEnd   == null || conn.hisEnd < date)   commit("novantHisEnd", date)
 
         // log metrics
-        end := Duration.now
-        dur := (end - start).toMillis
+        ts2 := Duration.now
+        dur := (ts2 - ts1).toMillis
         log.info("syncHis successful for '${conn.dis}' @ ${dayspan}" +
                  " [${conn.points.size} points, ${dur.toLocale}ms]")
       }
@@ -149,4 +163,7 @@ const class NovantSyncWorker
   private const Unsafe connUnsafe
   private const DateSpan span
   private const Log log
+
+  // options
+  private const Bool force := false
 }

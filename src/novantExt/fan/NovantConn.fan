@@ -23,7 +23,7 @@ class NovantConn : Conn
     NovantExt ext := ext
     switch (msg.id)
     {
-      case "nvSync": ext.syncActor.dispatchSync(this, msg.a); return null
+      case "nvSync": ext.syncActor.dispatchSync(this, msg.a, msg.b); return null
       default:       return super.receive(msg)
     }
   }

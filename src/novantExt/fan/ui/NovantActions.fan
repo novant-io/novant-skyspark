@@ -34,7 +34,7 @@ using ui
       it.info  = "This will delete history for all points under this device.
                   History will be resynced automatically starting today moving
                   forward. To resync older history, use the <b>Sync History</b>
-                  action"
+                  action."
       it.addButton("yes", null, false)
       it.addButton("no",  null, true)
       it.onAction |key|
