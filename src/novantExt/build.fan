@@ -28,13 +28,17 @@ class Build : BuildPod
                "util 1.0",
                "concurrent 1.0",
                "web 1.0",
+               "dom 1.0",
+               "graphics 1.0",
+               "domkit 1.0",
                "haystack 3.0",
                "folio 3.0",
                "axon 3.0",
                "skyarcd 3.0",
                "connExt 3.0",
-               "fresco 3.0"]
+               "ui 3.0"]
     srcDirs = [`fan/`,
+               `fan/ui/`,
                `test/`]
     resDirs = [`locale/`,
                `lib/`,

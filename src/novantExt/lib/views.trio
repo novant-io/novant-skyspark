@@ -13,7 +13,7 @@ dis: Novant
 admin
 src:
   view:     { inherit:"table" }
-  syncHis:  { dis:"Sync History" action:"novantSync" select multi }
-  clearHis: { dis:"Clear History" action:"novantHisClear" select multi }
+  syncHis:  { dis:"Sync History"  action:"novantExt::NovantActions.sync" select multi }
+  clearHis: { dis:"Clear History" action:"novantExt::NovantActions.clearHis" select multi }
   data:     { expr:"novantReadConns()" }
 --------------------------------------------------------------------------
