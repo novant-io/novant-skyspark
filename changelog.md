@@ -1,6 +1,8 @@
 # Changelog
 
-## Version 0.3 (working)
+## Version 0.4 (working)
+
+## Version 0.3 (16-Jun-2020)
 * Misc fixes to make sync more reliable
 * Rework `novantSync` to skip already synced days be default
 * Update `novantSync` to allow taking multiple conns
