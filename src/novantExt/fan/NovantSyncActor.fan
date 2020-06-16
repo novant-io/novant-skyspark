@@ -139,7 +139,7 @@ const class NovantSyncWorker
   {
     // pull rec to make sure we have the most of up-to-date
     rec := conn.ext.proj.readById(conn.rec.id)
-    conn.ext.proj.commit(Diff(conn.rec, [tag:val]))
+    conn.ext.proj.commit(Diff(rec, [tag:val]))
   }
 
   private NovantConn conn() { connUnsafe.val }
