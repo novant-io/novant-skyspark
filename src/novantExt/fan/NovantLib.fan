@@ -76,7 +76,7 @@ const class NovantLib
 
       Date? start := r["novantHisStart"]
       Date? end   := r["novantHisEnd"]
-      numHis := start == null || end == null ? null : end-start
+      numHis := start == null || end == null ? null : end-start+1day
 
       g.addRow([
         r.id,
