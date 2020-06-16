@@ -13,9 +13,12 @@ using ui
 
 @Js const class NovantActions
 {
-  static Void sync()
+  static Void sync(UiView view)
   {
-    Win.cur.alert("TODO: sync")
+    NSyncDialog(view.sel).open /*doOpen |span|
+    {
+      Win.cur.alert("> $span")
+    }*/
   }
 
   static Void clearHis(UiView view)
