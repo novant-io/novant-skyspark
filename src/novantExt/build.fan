@@ -23,6 +23,7 @@ class Build : BuildPod
                 "org.name":     "Novant LLC",
                 "license.name": "Commercial",
                 "skyarc.icons": "true",
+                "skyspark.docExt": "true"
               ]
     depends = ["sys 1.0",
                "util 1.0",

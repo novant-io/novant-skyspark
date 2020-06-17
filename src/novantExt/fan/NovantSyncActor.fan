@@ -28,9 +28,9 @@ const class NovantSyncActor
   **
   ** Dispatch a new background actor to perform a trend sync for
   ** the given 'conn' and 'span' range.  If 'span' is 'null', a
-  ** sync will be performed from 'Date.today - novantLasySync'.
-  ** If 'novantLastSync' is not defined, only 'Date.today' will
-  ** be synced.
+  ** sync will be performed from 'Date.yesterday - novantLasySync'.
+  ** If 'novantLastSync' is not defined, only 'Date.yesterday'
+  ** will be synced.
   ***
   Void dispatchSync(NovantConn conn, DateSpan? span, Dict? opts)
   {
@@ -39,6 +39,8 @@ const class NovantSyncActor
     // and we can short-circuit
     if (span == null) span = defSpan(conn.hisEnd)
     if (span == null) return
+
+    if (opts == null) opts = Etc.emptyDict
 
     worker := NovantSyncWorker(conn, span, opts, ext.log)
     actor  := Actor(pool) |m| { worker.sync; return null }
