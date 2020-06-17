@@ -71,7 +71,7 @@ const class NovantLib
   static Grid novantReadConns()
   {
     g := GridBuilder()
-    g.addColNames(["id","deviceId","numPoints","hisStart","hisEnd","numHisDays"])
+    g.addColNames(["id","deviceId","numPoints","syncFreq","hisStart","hisEnd","numHisDays"])
 
     cx := Context.cur
     cx.readAll("novantConn").each |r|
@@ -86,6 +86,7 @@ const class NovantLib
         r.id,
         r->novantDeviceId,
         Number.makeInt(numPoints),
+        r->novantSyncFreq,
         start,
         end,
         numHis == null ? null : Number.makeDuration(numHis),
