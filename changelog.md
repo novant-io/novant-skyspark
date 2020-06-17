@@ -1,6 +1,8 @@
 # Changelog
 
 ## Version 0.4 (working)
+* Add pod-doc
+* Fix NPE with `dispatchSync` on background actor
 
 ## Version 0.3 (16-Jun-2020)
 * Misc fixes to make sync more reliable
