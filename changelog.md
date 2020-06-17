@@ -1,6 +1,8 @@
 # Changelog
 
-## Version 0.4 (working)
+## Version 0.5 (working)
+
+## Version 0.4 (17-Jun-2020)
 * Add pod-doc
 * Fix NPE with `dispatchSync` on background actor
 
