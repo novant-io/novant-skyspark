@@ -1,6 +1,8 @@
 # Changelog
 
-## Version 0.5 (working)
+## Version 0.6 (working)
+
+## Version 0.5 (7-Jul-2020)
 * Update learn to use source > point nesting
 * Change `novantHis` tag to use `p` prefix
 
