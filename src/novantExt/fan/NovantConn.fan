@@ -82,11 +82,20 @@ class NovantConn : Conn
   ** Request points list from configured device.
   private Str:Obj reqPoints()
   {
-    c := WebClient(`https://api.novant.io/v1/points`)
-    c.reqHeaders["Authorization"] = "Basic " + "${apiKey}:".toBuf.toBase64
-    c.postForm(["device_id": deviceId])
-    return JsonInStream(c.resStr.in).readJson
+    now := Duration.nowTicks
+    if (lastReq == null || now-lastTs > 1min.ticks)
+    {
+      c := WebClient(`https://api.novant.io/v1/points`)
+      c.reqHeaders["Authorization"] = "Basic " + "${apiKey}:".toBuf.toBase64
+      c.postForm(["device_id": deviceId])
+      this.lastReq = JsonInStream(c.resStr.in).readJson
+    }
+    this.lastTs = now
+    return lastReq
   }
+
+  private Obj? lastReq
+  private Int lastTs
 
   internal Str apiKey()     { ext.proj.passwords.get(rec.id.toStr) ?: "" }
   internal Str deviceId()   { rec->novantDeviceId }
