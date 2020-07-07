@@ -129,9 +129,9 @@ const class NovantSyncWorker
             items := HisItem[,]
             data.each |Map entry|
             {
-              id  := point.rec["novantHis"].toStr.toInt
+              id  := point.rec["novantHis"].toStr
               ts  := DateTime.fromIso(entry["ts"]).toTimeZone(point.tz)
-              val := entry["p${id}"]
+              val := entry["${id}"]
               if (val != null) items.add(HisItem(ts, Number.make(val)))
             }
             point.updateHisOk(items, dayspan)
