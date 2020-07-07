@@ -1,6 +1,7 @@
 # Changelog
 
 ## Version 0.5 (working)
+* Update learn to use source > point nesting
 
 ## Version 0.4 (17-Jun-2020)
 * Add pod-doc

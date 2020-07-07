@@ -41,17 +41,35 @@ class NovantConn : Conn
 
   override Grid onLearn(Obj? arg)
   {
-    Obj[] points := reqPoints["points"]
+    // TODO: cache this data for ~1-5min?
     gb := GridBuilder()
-    gb.addColNames(["dis","point","kind","novantHis"])
-    points.each |Map p|
+    gb.addColNames(["dis","learn","point","kind","novantHis"])
+
+    Obj[] sources := reqPoints["sources"]
+    if (arg is Number)
     {
-      id   := p["id"]
-      dis  := p["name"]
-      kind := "Number"
-      his  := "${id}"
-      gb.addRow([dis, Marker.val, kind, his])
+      Int i := ((Number)arg).toInt
+      Map s := sources[i]
+      Obj[] points := s["points"]
+      points.each |Map p|
+      {
+        id   := p["id"]
+        dis  := p["name"]
+        kind := "Number"
+        his  := "${id}"
+        gb.addRow([dis, null, Marker.val, kind, his])
+      }
     }
+    else
+    {
+      sources.each |Map s, Int i|
+      {
+        dis  := s["name"]
+        learn := Number.makeInt(i)
+        gb.addRow([dis, learn, null, null, null])
+      }
+    }
+
     return gb.toGrid
   }
 
