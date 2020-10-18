@@ -1,6 +1,7 @@
 # Changelog
 
 ## Version 0.6 (working)
+* Improve handling of `na` data
 
 ## Version 0.5 (7-Jul-2020)
 * Update learn to use source > point nesting

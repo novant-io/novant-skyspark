@@ -131,7 +131,7 @@ const class NovantSyncWorker
             {
               id  := point.rec["novantHis"].toStr
               ts  := DateTime.fromIso(entry["ts"]).toTimeZone(point.tz)
-              val := entry["${id}"]
+              val := entry["${id}"] as Float
               if (val != null) items.add(HisItem(ts, Number.make(val)))
             }
             point.updateHisOk(items, dayspan)
