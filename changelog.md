@@ -1,6 +1,8 @@
 # Changelog
 
-## Version 0.6 (working)
+## Version 0.7 (working)
+
+## Version 0.6 (18-Oct-2020)
 * Improve handling of `na` data
 
 ## Version 0.5 (7-Jul-2020)
