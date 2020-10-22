@@ -114,6 +114,7 @@ const class NovantSyncWorker
         // request data
         c := WebClient(`https://api.novant.io/v1/trends`)
         c.reqHeaders["Authorization"] = "Basic " + "${conn.apiKey}:".toBuf.toBase64
+        c.reqHeaders["Accept-Encoding"] = "gzip"
         c.postForm(["device_id": conn.deviceId, "date": date.toStr])
 
         // parse and cache response
