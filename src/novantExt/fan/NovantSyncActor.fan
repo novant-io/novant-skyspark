@@ -120,7 +120,6 @@ const class NovantSyncWorker
         // parse and cache response
         Map map   := JsonInStream(c.resStr.in).readJson
         List data := map["data"]
-        dayspan   := Span(date.toLocale("YYYY-MM-DD")) // TODO: why is this so painful?
 
         // iterate by point to add his
         conn.points.each |point|
@@ -128,6 +127,9 @@ const class NovantSyncWorker
           try
           {
             items := HisItem[,]
+            start := date.midnight(point.tz)
+            end   := (date+1day).midnight(point.tz)
+            clip  := Span.makeAbs(start, end)
             data.each |Map entry|
             {
               id  := point.rec["novantHis"].toStr
@@ -135,7 +137,7 @@ const class NovantSyncWorker
               val := entry["${id}"] as Float
               if (val != null) items.add(HisItem(ts, Number.make(val)))
             }
-            point.updateHisOk(items, dayspan)
+            point.updateHisOk(items, clip)
           }
           catch (Err err) { point.updateHisErr(err) }
         }
@@ -147,7 +149,7 @@ const class NovantSyncWorker
         // log metrics
         ts2 := Duration.now
         dur := (ts2 - ts1).toMillis
-        log.info("syncHis successful for '${conn.dis}' @ ${dayspan}" +
+        log.info("syncHis successful for '${conn.dis}' @ ${date}" +
                  " [${conn.points.size} points, ${dur.toLocale}ms]")
       }
     }

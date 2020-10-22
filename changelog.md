@@ -2,6 +2,7 @@
 
 ## Version 0.7 (working)
 * Update WebClient to use gzip compression
+* Fix hisWrite clipping to using point tz
 
 ## Version 0.6 (18-Oct-2020)
 * Improve handling of `na` data
