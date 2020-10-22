@@ -87,6 +87,7 @@ class NovantConn : Conn
     {
       c := WebClient(`https://api.novant.io/v1/points`)
       c.reqHeaders["Authorization"] = "Basic " + "${apiKey}:".toBuf.toBase64
+      c.reqHeaders["Accept-Encoding"] = "gzip"
       c.postForm(["device_id": deviceId])
       this.lastReq = JsonInStream(c.resStr.in).readJson
     }

@@ -1,6 +1,7 @@
 # Changelog
 
 ## Version 0.7 (working)
+* Update WebClient to use gzip compression
 
 ## Version 0.6 (18-Oct-2020)
 * Improve handling of `na` data
