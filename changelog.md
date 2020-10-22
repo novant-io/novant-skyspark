@@ -1,6 +1,8 @@
 # Changelog
 
-## Version 0.7 (working)
+## Version 0.8 (working)
+
+## Version 0.7 (22-Oct-2020)
 * Update WebClient to use gzip compression
 * Fix hisWrite clipping to using point tz
 
