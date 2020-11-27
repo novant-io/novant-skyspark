@@ -1,6 +1,7 @@
 # Changelog
 
 ## Version 0.8 (working)
+* Fix `yesterday` syncs to wait till `2:00am` to ensure full data
 
 ## Version 0.7 (22-Oct-2020)
 * Update WebClient to use gzip compression

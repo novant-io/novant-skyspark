@@ -82,7 +82,7 @@ const class NovantSyncWorker
     this.force = opts.has("force")
   }
 
-  ** Performance REST API call and updateHisOk/Err work.
+  ** Perform REST API call and updateHisOk/Err work.
   Void sync()
   {
     // TODO:
@@ -103,6 +103,11 @@ const class NovantSyncWorker
 
         // never sync past yesterday
         if (date > Date.yesterday) return
+
+        // if we are trying to sync yesterday, we need to wait
+        // until 2:00am local time to ensure device data is
+        // fully synced up to cloud
+        if (date == Date.yesterday && DateTime.now.hour < 2) return
 
         // skip if already synced unless force=true
         if (!force && hisSpan != null && hisSpan.contains(date))
