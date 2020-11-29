@@ -1,6 +1,8 @@
 # Changelog
 
-## Version 0.8 (working)
+## Version 0.9 (working)
+
+## Version 0.8 (29-Nov-2020)
 * Fix `yesterday` syncs to wait till `2:00am` to ensure full data
 * Add support for learning `unit` during conn learn
 
