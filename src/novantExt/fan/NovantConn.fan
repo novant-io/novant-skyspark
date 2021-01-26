@@ -77,11 +77,19 @@ class NovantConn : Conn
           id  := r["id"]
           val := r["val"]
 
+          // point not found
           pt = map[id]
           if (pt == null) return
 
-          if (val is Float) pt.updateCurOk(Number.make(val, pt.unit))
-          else throw IOErr("Fault")
+          // sanity check to disallow his collection
+          if (pt.rec.has("hisCollectCov") || pt.rec.has("hisCollectInterval"))
+            throw ArgErr("hisCollect not allowed")
+
+          // read fault (TODO: pull thru error codes?)
+          if (val isnot Float) throw IOErr("Fault")
+
+          // ok
+          pt.updateCurOk(Number.make(val, pt.unit))
         }
         catch (Err err) { pt?.updateCurErr(err) }
       }
