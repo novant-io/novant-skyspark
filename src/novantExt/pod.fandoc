@@ -32,8 +32,19 @@ Where 'apiKey' is the key you generated from the Novant platform, and
 
 Cur/Write/His [#curHisWrite]
 ****************************
-Novant devices are somewhat unique in that they *only* support 'his' points.
-There is no 'curVal' and points are not writable.
+Current values are configured using the 'novantCur' tag on a point.  Likewise
+histories use the 'novantHis' tag.  The value of these tags maps to the point
+ID for the Novant device, which will be in the format of '"p{id}"'.
+
+  point
+  dis: "My Point"
+  novantCur: "p15"
+  novantHis: "p15"
+  equipRef: @equip-id
+  siteRef: @site-id
+  unit: "kW"
+
+Writable points are coming soon :)
 
 Learn [#learn]
 **************
