@@ -39,11 +39,61 @@ class NovantConn : Conn
     return Etc.emptyDict
   }
 
+  override Void onSyncCur(ConnPoint[] points)
+  {
+    try
+    {
+      // short-circuit if polling under 1min
+      now := DateTime.nowTicks
+      if (now - lastValuesTicks < 1min.ticks) return
+      this.lastValuesTicks = now
+
+      // request values
+      c := makeWebClient(`https://api.novant.io/v1/values`)
+      c.postForm([
+        "device_id": deviceId,
+        "last_ts":   lastValuesTs.toIso,
+      ])
+
+      // check response codes
+      if (c.resCode == 304) return
+      if (c.resCode == 503) throw IOErr("Unavailable")
+
+      // WebClient will throw internally for non-200 when we read `in`
+      Str:Obj res := JsonInStream(c.resStr.in).readJson
+      this.lastValuesTs = DateTime.fromIso(res["ts"])
+
+      // TODO: can this be cached somewhere?
+      map := Str:ConnPoint[:]
+      points.each |p| { map.set(p.rec["novantCur"], p) }
+
+      // update curVals
+      Obj[] data := res["data"]
+      data.each |Map r|
+      {
+        ConnPoint? pt
+        try
+        {
+          id  := r["id"]
+          val := r["val"]
+
+          pt = map[id]
+          if (pt == null) return
+
+          if (val is Float) pt.updateCurOk(Number.make(val, pt.unit))
+          else throw IOErr("Fault")
+        }
+        catch (Err err) { pt?.updateCurErr(err) }
+      }
+    }
+    catch (Err err) { close(err) }
+  }
+
   override Grid onLearn(Obj? arg)
   {
     // TODO: cache this data for ~1-5min?
     gb := GridBuilder()
-    gb.addColNames(["dis","learn","point","kind","novantHis","unit"])
+    gb.addColNames(["dis","learn","point","kind","novantCur","novantHis","unit"])
 
     Obj[] sources := reqPoints["sources"]
     if (arg is Number)
@@ -56,9 +106,10 @@ class NovantConn : Conn
         id   := p["id"]
         dis  := p["name"]
         kind := "Number"
+        cur  := "${id}"
         his  := "${id}"
         unit := p["unit"]
-        gb.addRow([dis, null, Marker.val, kind, his, unit])
+        gb.addRow([dis, null, Marker.val, kind, cur, his, unit])
       }
     }
     else
@@ -67,7 +118,7 @@ class NovantConn : Conn
       {
         dis  := s["name"]
         learn := Number.makeInt(i)
-        gb.addRow([dis, learn, null, null, null, null])
+        gb.addRow([dis, learn, null, null, null,null, null])
       }
     }
 
@@ -84,20 +135,31 @@ class NovantConn : Conn
   private Str:Obj reqPoints()
   {
     now := Duration.nowTicks
-    if (lastReq == null || now-lastTs > 1min.ticks)
+    if (lastReq == null || now-lastPointsTicks > 1min.ticks)
     {
-      c := WebClient(`https://api.novant.io/v1/points`)
-      c.reqHeaders["Authorization"] = "Basic " + "${apiKey}:".toBuf.toBase64
-      c.reqHeaders["Accept-Encoding"] = "gzip"
+      c := makeWebClient(`https://api.novant.io/v1/points`)
       c.postForm(["device_id": deviceId])
       this.lastReq = JsonInStream(c.resStr.in).readJson
     }
-    this.lastTs = now
+    this.lastPointsTicks = now
     return lastReq
   }
 
+  ** Create an authorizd WebClient instance for given endpoint.
+  private WebClient makeWebClient(Uri uri)
+  {
+    c := WebClient(uri)
+    c.reqHeaders["Authorization"] = "Basic " + "${apiKey}:".toBuf.toBase64
+    c.reqHeaders["Accept-Encoding"] = "gzip"
+    return c
+  }
+
   private Obj? lastReq
-  private Int lastTs
+  private Int lastPointsTicks
+
+  // lastTicks is our interal counter; lastTs is API argument
+  private Int lastValuesTicks
+  private DateTime lastValuesTs := DateTime.defVal
 
   internal Str apiKey()     { ext.proj.passwords.get(rec.id.toStr) ?: "" }
   internal Str deviceId()   { rec->novantDeviceId }

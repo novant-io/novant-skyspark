@@ -1,6 +1,7 @@
 # Changelog
 
 ## Version 0.9 (working)
+* Add `curVal` support using new `/values` API
 
 ## Version 0.8 (29-Nov-2020)
 * Fix `yesterday` syncs to wait till `2:00am` to ensure full data

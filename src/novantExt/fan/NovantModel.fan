@@ -28,9 +28,9 @@ const class NovantModel : ConnModel
 
   override const Dict connProto
   override Type? pointAddrType()     { Str#  }
-  override Bool isPollingSupported() { false }
+  override PollingMode pollingMode() { PollingMode.buckets }
   override Bool isLearnSupported()   { true  }
-  override Bool isCurSupported()     { false }
+  override Bool isCurSupported()     { true  }
   override Bool isWriteSupported()   { false }
   override Bool isHisSupported()     { true  }
 }
