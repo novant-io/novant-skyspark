@@ -1,6 +1,8 @@
 # Changelog
 
-## Version 0.9 (working)
+## Version 0.10 (26-Jan-2021)
+
+## Version 0.9 (26-Jan-2021)
 * Add `curVal` support using new `/values` API
 
 ## Version 0.8 (29-Nov-2020)
