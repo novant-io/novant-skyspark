@@ -124,7 +124,7 @@ class NovantConn : Conn
   {
     // TODO: cache this data for ~1-5min?
     gb := GridBuilder()
-    gb.addColNames(["dis","learn","point","kind","novantCur","novantHis","unit"])
+    gb.addColNames(["dis","learn","point","kind","novantCur","novantWrite","novantHis","unit"])
 
     Obj[] sources := reqPoints["sources"]
     if (arg is Number)
@@ -138,9 +138,10 @@ class NovantConn : Conn
         dis  := p["name"]
         kind := "Number"
         cur  := "${id}"
+        wrt  := p["writable"] == true ? "${id}" : null
         his  := "${id}"
         unit := p["unit"]
-        gb.addRow([dis, null, Marker.val, kind, cur, his, unit])
+        gb.addRow([dis, null, Marker.val, kind, cur, wrt, his, unit])
       }
     }
     else
@@ -149,7 +150,7 @@ class NovantConn : Conn
       {
         dis  := s["name"]
         learn := Number.makeInt(i)
-        gb.addRow([dis, learn, null, null, null,null, null])
+        gb.addRow([dis, learn, null, null, null, null, null, null])
       }
     }
 

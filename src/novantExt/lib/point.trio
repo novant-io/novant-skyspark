@@ -25,6 +25,12 @@ tagOn: ^novantPoint
 doc:
   Novant address to use for reading the current value.
 --------------------------------------------------------------------------
+def: ^novantWrite
+is: ^str
+tagOn: ^novantPoint
+doc:
+  Novant address to use for writing the current value.
+--------------------------------------------------------------------------
 def: ^novantHis
 is: ^str
 tagOn: ^novantPoint

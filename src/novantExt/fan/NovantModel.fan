@@ -31,7 +31,7 @@ const class NovantModel : ConnModel
   override PollingMode pollingMode() { PollingMode.buckets }
   override Bool isLearnSupported()   { true  }
   override Bool isCurSupported()     { true  }
-  override Bool isWriteSupported()   { false }
+  override Bool isWriteSupported()   { true  }
   override Bool isHisSupported()     { true  }
 }
 
