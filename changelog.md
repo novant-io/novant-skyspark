@@ -1,6 +1,8 @@
 # Changelog
 
-## Version 0.10 (working)
+## Version 0.11 (working)
+
+## Version 0.10 (10-Feb-2021)
 * Add `write` support using new `/write` API
 
 ## Version 0.9 (26-Jan-2021)
