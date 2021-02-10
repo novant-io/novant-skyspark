@@ -107,6 +107,41 @@ class NovantConn : Conn
   }
 
 //////////////////////////////////////////////////////////////////////////
+// Write
+//////////////////////////////////////////////////////////////////////////
+
+  override Void onWrite(ConnPoint point, Obj? val, Number level)
+  {
+    try
+    {
+      // convert to float
+      Float? fval
+      if (val is Number) fval = ((Number)val).toFloat
+      if (val is Bool)   fval = val==true ? 1f : 0f
+
+      // cap priority to max 16
+      pri := level.toInt
+      if (pri > 16) pri = 16
+
+      // issue write
+      c := makeWebClient(`https://api.novant.io/v1/write`)
+      c.postForm([
+        "device_id": deviceId,
+        "point_id":  point.rec["novantWrite"],
+        "value":     fval?.toStr ?: "null",
+        "priority":  pri.toStr,
+      ])
+
+      // check response codes
+      if (c.resCode != 200) throw IOErr("Write failed")
+
+      // update ok
+      point.updateWriteOk(val, level)
+    }
+    catch (Err err) { point.updateWriteErr(val, level, err) }
+  }
+
+//////////////////////////////////////////////////////////////////////////
 // His
 //////////////////////////////////////////////////////////////////////////
 
