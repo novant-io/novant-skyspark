@@ -32,19 +32,25 @@ Where 'apiKey' is the key you generated from the Novant platform, and
 
 Cur/Write/His [#curHisWrite]
 ****************************
-Current values are configured using the 'novantCur' tag on a point.  Likewise
-histories use the 'novantHis' tag.  The value of these tags maps to the point
-ID for the Novant device, which will be in the format of '"p{id}"'.
+Current values are configured using the 'novantCur' tag on a point. Writable
+points use the 'novantWrite' tag.  Likewise histories use the 'novantHis' tag.
+The value of these tags maps to the point ID for the Novant device, which will
+be in the format of '"p{id}"'.
 
   point
   dis: "My Point"
   novantCur: "p15"
+  novantWrite: "p15"
   novantHis: "p15"
   equipRef: @equip-id
   siteRef: @site-id
   unit: "kW"
 
-Writable points are coming soon :)
+The SkySpark write level will be carried over directly into the downstream
+I/O device under the Novant gateway.  For protocols that support priority, like
+Bacnet, this means the Bacnet priority array level matches the SkySpark write
+level. For protocols that do no support priority (such as Modbus) this value
+is ignored.
 
 Learn [#learn]
 **************
