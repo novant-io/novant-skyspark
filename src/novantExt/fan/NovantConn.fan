@@ -65,8 +65,10 @@ class NovantConn : Conn
       ])
 
       // check response codes
+      if (c.resCode == 401) throw IOErr("Unauthorized")
       if (c.resCode == 304) return
       if (c.resCode == 503) throw IOErr("Unavailable")
+      if (c.resCode != 200) throw IOErr("Read failed")
 
       // WebClient will throw internally for non-200 when we read `in`
       Str:Obj res := JsonInStream(c.resStr.in).readJson
@@ -133,6 +135,7 @@ class NovantConn : Conn
       ])
 
       // check response codes
+      if (c.resCode == 401) throw IOErr("Unauthorized")
       if (c.resCode != 200) throw IOErr("Write failed")
 
       // update ok

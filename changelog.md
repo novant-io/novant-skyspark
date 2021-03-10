@@ -1,6 +1,7 @@
 # Changelog
 
 ## Version 0.11 (working)
+* Check response codes for all API requests
 
 ## Version 0.10 (10-Feb-2021)
 * Add `write` support using new `/write` API

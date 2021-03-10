@@ -122,6 +122,10 @@ const class NovantSyncWorker
         c.reqHeaders["Accept-Encoding"] = "gzip"
         c.postForm(["device_id": conn.deviceId, "date": date.toStr])
 
+        // validate
+        if (c.resCode == 401) throw IOErr("Unauthorized")
+        if (c.resCode != 200) throw IOErr("Invalid response code: ${c.resCode}")
+
         // parse and cache response
         Map map   := JsonInStream(c.resStr.in).readJson
         List data := map["data"]
