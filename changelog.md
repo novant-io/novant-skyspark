@@ -1,6 +1,10 @@
 # Changelog
 
-## Version 0.11 (working)
+## Version 0.12 (working)
+* Update API calls to pass `point_ids` to optmize responses
+* Fix `SyncActor` to handle non-historized points
+
+## Version 0.11 (10-Mar-2021)
 * Check response codes for all API requests
 
 ## Version 0.10 (10-Feb-2021)

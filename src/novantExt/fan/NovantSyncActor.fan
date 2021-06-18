@@ -86,7 +86,6 @@ const class NovantSyncWorker
   Void sync()
   {
     // TODO:
-    //   - support for point_id(s) filter?
     //   - support for passing in time_zone?
     //   - support for non-Number types?
 
@@ -116,11 +115,26 @@ const class NovantSyncWorker
           return
         }
 
+        // get comma-sep point id list
+        pointIds := StrBuf()
+        conn.points.each |p|
+        {
+          id := p.rec["novantHis"]
+          if (id != null) pointIds.join(id, ",")
+        }
+
+        // short-ciruit if no points
+        if (pointIds.isEmpty) return
+
         // request data
         c := WebClient(`https://api.novant.io/v1/trends`)
         c.reqHeaders["Authorization"] = "Basic " + "${conn.apiKey}:".toBuf.toBase64
         c.reqHeaders["Accept-Encoding"] = "gzip"
-        c.postForm(["device_id": conn.deviceId, "date": date.toStr])
+        c.postForm([
+          "device_id": conn.deviceId,
+          "date":      date.toStr,
+          "point_ids": pointIds.toStr,
+        ])
 
         // validate
         if (c.resCode == 401) throw IOErr("Unauthorized")
@@ -131,22 +145,27 @@ const class NovantSyncWorker
         List data := map["data"]
 
         // iterate by point to add his
+        numPoints := 0
         conn.points.each |point|
         {
           try
           {
+            // short-circuit if not a historized point
+            id := point.rec["novantHis"]?.toStr
+            if (id == null) return
+
             items := HisItem[,]
             start := date.midnight(point.tz)
             end   := (date+1day).midnight(point.tz)
             clip  := Span.makeAbs(start, end)
             data.each |Map entry|
             {
-              id  := point.rec["novantHis"].toStr
               ts  := DateTime.fromIso(entry["ts"]).toTimeZone(point.tz)
               val := entry["${id}"] as Float
               if (val != null) items.add(HisItem(ts, Number.make(val)))
             }
             point.updateHisOk(items, clip)
+            numPoints++
           }
           catch (Err err) { point.updateHisErr(err) }
         }
@@ -159,7 +178,7 @@ const class NovantSyncWorker
         ts2 := Duration.now
         dur := (ts2 - ts1).toMillis
         log.info("syncHis successful for '${conn.dis}' @ ${date}" +
-                 " [${conn.points.size} points, ${dur.toLocale}ms]")
+                 " [${numPoints} points, ${dur.toLocale}ms]")
       }
     }
     catch (Err err) { log.err("syncHis failed for '${conn.dis}'", err) }
