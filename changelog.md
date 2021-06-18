@@ -1,6 +1,8 @@
 # Changelog
 
-## Version 0.12 (working)
+## Version 0.13 (working)
+
+## Version 0.12 (18-Jun-2021)
 * Update API calls to pass `point_ids` to optmize responses
 * Fix `SyncActor` to handle non-historized points
 
