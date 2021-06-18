@@ -52,16 +52,29 @@ class NovantConn : Conn
   {
     try
     {
+      // short-circuit if no points
+      if (points.size == 0) return
+
       // short-circuit if polling under 1min
       now := DateTime.nowTicks
       if (now - lastValuesTicks < 1min.ticks) return
       this.lastValuesTicks = now
+
+      // TODO: can this be cached somewhere?
+      // get comma-sep point id list
+      pointIds := StrBuf()
+      points.each |p|
+      {
+        id := p.rec["novantCur"]
+        if (id != null) pointIds.join(id, ",")
+      }
 
       // request values
       c := makeWebClient(`https://api.novant.io/v1/values`)
       c.postForm([
         "device_id": deviceId,
         "last_ts":   lastValuesTs.toIso,
+        "point_ids": pointIds.toStr,
       ])
 
       // check response codes
