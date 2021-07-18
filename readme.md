@@ -8,7 +8,7 @@ for the [Novant](https://novant.io) Smart Building PaaS.
 [rel]: https://github.com/novant-io/novant-skyspark/releases
 
 The simplest way to install the `novantExt` is using the Install Manager tool
-in SkySpark. You may also manually download the pod from [Releases](rel) and
+in SkySpark. You may also manually download the pod from [Releases][rel] and
 copy into the `lib/fan/` folder. A restart is required for the extension to
 take effect.
 
