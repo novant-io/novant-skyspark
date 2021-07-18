@@ -109,11 +109,9 @@ class NovantConn : Conn
           if (pt.rec.has("hisCollectCov") || pt.rec.has("hisCollectInterval"))
             throw ArgErr("hisCollect not allowed")
 
-          // read fault (TODO: pull thru error codes?)
-          if (val isnot Float) throw IOErr("Fault")
-
-          // ok
-          pt.updateCurOk(Number.make(val, pt.unit))
+          // convert and update
+          pval := NovantUtil.toConnPointVal(pt, val)
+          pt.updateCurOk(pval)
         }
         catch (Err err) { pt?.updateCurErr(err) }
       }

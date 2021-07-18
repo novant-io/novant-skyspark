@@ -162,7 +162,11 @@ const class NovantSyncWorker
             {
               ts  := DateTime.fromIso(entry["ts"]).toTimeZone(point.tz)
               val := entry["${id}"] as Float
-              if (val != null) items.add(HisItem(ts, Number.make(val)))
+              if (val != null)
+              {
+                pval := NovantUtil.toConnPointVal(point, val)
+                items.add(HisItem(ts, pval))
+              }
             }
             point.updateHisOk(items, clip)
             numPoints++
