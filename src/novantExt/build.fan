@@ -1,7 +1,7 @@
 #! /usr/bin/env fan
 //
 // Copyright (c) 2019, Novant LLC
-// All Rights Reserved
+// Licensed under the MIT License
 //
 // History:
 //   18 Nov 2019   Andy Frank   Creation
@@ -21,7 +21,7 @@ class Build : BuildPod
     version = Version("0.14")
     meta    = [
                 "org.name":     "Novant LLC",
-                "license.name": "Commercial",
+                "license.name": "MIT",
                 "skyarc.icons": "true",
                 "skyspark.docExt": "true"
               ]

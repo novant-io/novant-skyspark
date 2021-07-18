@@ -2,6 +2,7 @@
 
 ## Version 0.14 (working)
 * Open source on GitHub
+* Change license to MIT
 
 ## Version 0.13 (18-Jul-2021)
 * Update learn to use new Points API `kind` tag
