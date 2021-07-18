@@ -44,12 +44,13 @@ be in the format of '"p{id}"'.
   novantHis: "p15"
   equipRef: @equip-id
   siteRef: @site-id
+  kind: "Number"
   unit: "kW"
 
 The SkySpark write level will be carried over directly into the downstream
 I/O device under the Novant gateway.  For protocols that support priority, like
 Bacnet, this means the Bacnet priority array level matches the SkySpark write
-level. For protocols that do no support priority (such as Modbus) this value
+level. For protocols that do not support priority (such as Modbus) this value
 is ignored.
 
 Learn [#learn]
@@ -62,7 +63,7 @@ Syncing [#sync]
 The Novant extension is designed to automate history syncs to simplify keeping
 data up-to-date.  Syncing is managed on the *connector* instead of *per-point*.
 The default is to sync trend data for all points under a connector daily. A new
-connector will being syncing history 'yesterday'.  If you wish to sync previous
+connector will begin syncing history 'yesterday'.  If you wish to sync previous
 data that is available, see the **Conn Tool** section below.
 
 By design, the Novant platform trends data "day-behind."  Which means your
