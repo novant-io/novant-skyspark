@@ -187,7 +187,7 @@ class NovantConn : Conn
       {
         id   := p["id"]
         dis  := p["name"]
-        kind := "Number"
+        kind := p["kind"] == "bool" ? "Bool" : "Number"
         cur  := "${id}"
         wrt  := p["writable"] == true ? "${id}" : null
         his  := "${id}"
