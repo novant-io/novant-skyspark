@@ -1,6 +1,8 @@
 # Changelog
 
-## Version 0.13 (working)
+## Version 0.14 (working)
+
+## Version 0.13 (18-Jul-2021)
 * Update learn to use new Points API `kind` tag
 * Update `syncCur` and `syncHis` to support `Bool` points
 
