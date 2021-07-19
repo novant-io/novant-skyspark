@@ -39,8 +39,7 @@ class NovantConn : Conn
 
   override Dict onPing()
   {
-    // TODO: add a low-cost / ping endpoint
-    reqPoints
+    reqPing
     return Etc.emptyDict
   }
 
@@ -209,6 +208,14 @@ class NovantConn : Conn
 //////////////////////////////////////////////////////////////////////////
 // Support
 //////////////////////////////////////////////////////////////////////////
+
+  ** Perform a ping for configured device.
+  private Void reqPing()
+  {
+    // throws IOErr if fails else ok
+    c := makeWebClient(`https://api.novant.io/v1/ping`)
+    c.postForm(["device_id": deviceId])
+  }
 
   ** Request points list from configured device.
   private Str:Obj reqPoints()
