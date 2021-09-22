@@ -25,7 +25,7 @@ class NovantUtil
     switch (kind)
     {
       case "Bool":   return val == 0f ? false : true
-      case "Number": return Number.make(val, p.unit)
+      case "Number": return Number.make(val)
       default:       throw IOErr("Unsupported kind '${kind}'")
     }
   }

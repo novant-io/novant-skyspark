@@ -4,6 +4,7 @@
 * Open source on GitHub
 * Change license to MIT
 * Update `NovantConn.onPing` to use new lightweight `/ping` API endpoint
+* Fix `NovantConn` unit handling to allow `curConvert` to work properly
 
 ## Version 0.13 (18-Jul-2021)
 * Update learn to use new Points API `kind` tag
