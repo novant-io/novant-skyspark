@@ -1,6 +1,8 @@
 # Changelog
 
-## Version 0.14 (working)
+## Version 0.15 (working)
+
+## Version 0.14 (22-Sep-2021)
 * Open source on GitHub
 * Change license to MIT
 * Update `NovantConn.onPing` to use new lightweight `/ping` API endpoint
