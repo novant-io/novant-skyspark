@@ -170,10 +170,10 @@ class NovantConn : Conn
 
   override Grid onLearn(Obj? arg)
   {
-    // TODO: cache this data for ~1-5min?
     gb := GridBuilder()
     gb.addColNames(["dis","learn","point","kind","novantCur","novantWrite","novantHis","unit"])
 
+    // NOTE: reqPoints caches values for 1min
     Obj[] sources := reqPoints["sources"]
     if (arg is Number)
     {
@@ -251,9 +251,10 @@ class NovantConn : Conn
   private Int lastValuesTicks
   private DateTime lastValuesTs := DateTime.defVal
 
-  internal Str apiKey()     { ext.proj.passwords.get(rec.id.toStr) ?: "" }
+  // prior to 3.0.29 (?) apiKey was stored as plain-text tag; so allow
+  // fallback if not found in the password manager
+  internal Str apiKey()     { ext.proj.passwords.get(rec.id.toStr) ?: rec->apiKey }
   internal Str deviceId()   { rec->novantDeviceId }
   internal Date? hisStart() { rec["novantHisStart"] }
   internal Date? hisEnd()   { rec["novantHisEnd"]   }
 }
-

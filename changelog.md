@@ -1,6 +1,7 @@
 # Changelog
 
 ## Version 0.15 (working)
+* Update to fallback to `apiKey` as tag value for older SkySpark versions
 
 ## Version 0.14 (22-Sep-2021)
 * Open source on GitHub
