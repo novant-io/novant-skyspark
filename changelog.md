@@ -1,6 +1,8 @@
 # Changelog
 
-## Version 0.15 (working)
+## Version 0.16 (working)
+
+## Version 0.15 (12-Nov-2021)
 * New `NovantClient` API
    - Switch `NovantConn` over to use `NovantClient`
    - Fixup error handling for all API requests
