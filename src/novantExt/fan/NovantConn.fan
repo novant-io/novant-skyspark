@@ -39,7 +39,7 @@ class NovantConn : Conn
 
   override Dict onPing()
   {
-    reqPing
+    NovantClient(apiKey).ping(deviceId)
     return Etc.emptyDict
   }
 
@@ -69,21 +69,7 @@ class NovantConn : Conn
       }
 
       // request values
-      c := makeWebClient(`https://api.novant.io/v1/values`)
-      c.postForm([
-        "device_id": deviceId,
-        "last_ts":   lastValuesTs.toIso,
-        "point_ids": pointIds.toStr,
-      ])
-
-      // check response codes
-      if (c.resCode == 401) throw IOErr("Unauthorized")
-      if (c.resCode == 304) return
-      if (c.resCode == 503) throw IOErr("Unavailable")
-      if (c.resCode != 200) throw IOErr("Read failed")
-
-      // WebClient will throw internally for non-200 when we read `in`
-      Str:Obj res := JsonInStream(c.resStr.in).readJson
+      Str:Obj? res := NovantClient(apiKey).vals(deviceId, pointIds.toStr, lastValuesTs)
       this.lastValuesTs = DateTime.fromIso(res["ts"])
 
       // TODO: can this be cached somewhere?
@@ -136,17 +122,8 @@ class NovantConn : Conn
       if (pri > 16) pri = 16
 
       // issue write
-      c := makeWebClient(`https://api.novant.io/v1/write`)
-      c.postForm([
-        "device_id": deviceId,
-        "point_id":  point.rec["novantWrite"],
-        "value":     fval?.toStr ?: "null",
-        "priority":  pri.toStr,
-      ])
-
-      // check response codes
-      if (c.resCode == 401) throw IOErr("Unauthorized")
-      if (c.resCode != 200) throw IOErr("Write failed")
+      pid := point.rec["novantWrite"]
+      NovantClient(apiKey).write(deviceId, pid, fval, pri)
 
       // update ok
       point.updateWriteOk(val, level)
@@ -173,8 +150,12 @@ class NovantConn : Conn
     gb := GridBuilder()
     gb.addColNames(["dis","learn","point","kind","novantCur","novantWrite","novantHis","unit"])
 
-    // NOTE: reqPoints caches values for 1min
-    Obj[] sources := reqPoints["sources"]
+    // cache points results for 1min
+    now := Duration.nowTicks
+    if (now-lastPointsTicks > 1min.ticks) this.pointsReq = NovantClient(apiKey).points(deviceId)
+    this.lastPointsTicks = now
+
+    Obj[] sources := pointsReq["sources"]
     if (arg is Number)
     {
       Int i := ((Number)arg).toInt
@@ -206,45 +187,10 @@ class NovantConn : Conn
   }
 
 //////////////////////////////////////////////////////////////////////////
-// Support
-//////////////////////////////////////////////////////////////////////////
-
-  ** Perform a ping for configured device.
-  private Void reqPing()
-  {
-    // throws IOErr if fails else ok
-    c := makeWebClient(`https://api.novant.io/v1/ping`)
-    c.postForm(["device_id": deviceId])
-  }
-
-  ** Request points list from configured device.
-  private Str:Obj reqPoints()
-  {
-    now := Duration.nowTicks
-    if (lastReq == null || now-lastPointsTicks > 1min.ticks)
-    {
-      c := makeWebClient(`https://api.novant.io/v1/points`)
-      c.postForm(["device_id": deviceId])
-      this.lastReq = JsonInStream(c.resStr.in).readJson
-    }
-    this.lastPointsTicks = now
-    return lastReq
-  }
-
-  ** Create an authorizd WebClient instance for given endpoint.
-  private WebClient makeWebClient(Uri uri)
-  {
-    c := WebClient(uri)
-    c.reqHeaders["Authorization"] = "Basic " + "${apiKey}:".toBuf.toBase64
-    c.reqHeaders["Accept-Encoding"] = "gzip"
-    return c
-  }
-
-//////////////////////////////////////////////////////////////////////////
 // Fields
 //////////////////////////////////////////////////////////////////////////
 
-  private Obj? lastReq
+  private Str:Obj? pointsReq := [:]
   private Int lastPointsTicks
 
   // lastTicks is our interal counter; lastTs is API argument

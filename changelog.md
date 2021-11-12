@@ -1,6 +1,9 @@
 # Changelog
 
 ## Version 0.15 (working)
+* New `NovantClient` API
+   - Switch `NovantConn` over to use `NovantClient`
+   - Fixup error handling for all API requests
 * Update to fallback to `apiKey` as tag value for older SkySpark versions
 
 ## Version 0.14 (22-Sep-2021)
