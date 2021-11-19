@@ -1,6 +1,8 @@
 # Changelog
 
-## Version 0.16 (working)
+## Version 0.17 (working)
+
+## Version 0.16 (19-Nov-2021)
 * Update dependency to SkySpark `3.1`
 
 ## Version 0.15 (12-Nov-2021)
