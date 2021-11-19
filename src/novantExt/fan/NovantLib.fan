@@ -42,7 +42,7 @@ const class NovantLib
   static Void novantSync(Obj conns, Obj? span := null, Obj? opts := null)
   {
     if (span is Date) span = DateSpan.make(span)
-    SysLib.toRecList(conns).each |conn|
+    Etc.toRecs(conns).each |conn|
     {
       dopts := Etc.makeDict(opts)
       NovantExt.cur.connActor(conn).send(ConnMsg("nvSync", span, dopts))
@@ -56,7 +56,7 @@ const class NovantLib
   static Void novantHisClear(Obj conns)
   {
     cx   := Context.cur
-    recs := SysLib.toRecList(conns)
+    recs := Etc.toRecs(conns)
     recs.each |c|
     {
       pts := cx.readAll("point and novantConnRef==${c.id.toCode}")

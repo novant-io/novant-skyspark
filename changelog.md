@@ -1,6 +1,7 @@
 # Changelog
 
 ## Version 0.16 (working)
+* Update dependency to SkySpark `3.1`
 
 ## Version 0.15 (12-Nov-2021)
 * New `NovantClient` API

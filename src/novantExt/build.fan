@@ -32,12 +32,12 @@ class Build : BuildPod
                "dom 1.0",
                "graphics 1.0",
                "domkit 1.0",
-               "haystack 3.0",
-               "folio 3.0",
-               "axon 3.0",
-               "skyarcd 3.0",
-               "connExt 3.0",
-               "ui 3.0"]
+               "haystack 3.1",
+               "folio 3.1",
+               "axon 3.1",
+               "skyarcd 3.1",
+               "connExt 3.1",
+               "ui 3.1"]
     srcDirs = [`fan/`,
                `fan/ui/`,
                `test/`]
