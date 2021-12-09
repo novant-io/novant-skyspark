@@ -139,6 +139,7 @@ const class NovantSyncWorker
           "device_id": conn.deviceId,
           "date":      date.toStr,
           "point_ids": pointIds.toStr,
+          "interval":  conn.hisInterval,
         ])
 
         // validate

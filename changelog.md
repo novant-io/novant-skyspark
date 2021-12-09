@@ -2,6 +2,7 @@
 
 ## Version 0.17 (working)
 * Fix syncs to skip `disabled` connectors
+* New `novantHisInterval` tag to support `1min`, `5min`, `15min` his intervals
 
 ## Version 0.16 (19-Nov-2021)
 * Update dependency to SkySpark `3.1`

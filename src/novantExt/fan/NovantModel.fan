@@ -23,6 +23,7 @@ const class NovantModel : ConnModel
       "novantDeviceId": "dv_",
       "apiKey":         "ak_",
       "novantSyncFreq": "daily",
+      "novantHisInterval": "15min",
     ])
   }
 

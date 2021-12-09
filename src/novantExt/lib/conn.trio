@@ -33,5 +33,10 @@ def: ^novantHisEnd
 is: ^date
 tagOn: ^novantConn
 --------------------------------------------------------------------------
-
-
+def: ^novantHisInterval
+is: ^str
+enum: ["1min", "5min", "15min"]
+tagOn: ^novantConn
+doc:
+  Interval of trend data synced from Novant.
+--------------------------------------------------------------------------

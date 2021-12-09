@@ -201,8 +201,9 @@ class NovantConn : Conn
 
   // prior to 3.0.29 (?) apiKey was stored as plain-text tag; so allow
   // fallback if not found in the password manager
-  internal Str apiKey()     { ext.proj.passwords.get(rec.id.toStr) ?: rec->apiKey }
-  internal Str deviceId()   { rec->novantDeviceId }
-  internal Date? hisStart() { rec["novantHisStart"] }
-  internal Date? hisEnd()   { rec["novantHisEnd"]   }
+  internal Str apiKey()      { ext.proj.passwords.get(rec.id.toStr) ?: rec->apiKey }
+  internal Str deviceId()    { rec->novantDeviceId }
+  internal Date? hisStart()  { rec["novantHisStart"] }
+  internal Date? hisEnd()    { rec["novantHisEnd"]   }
+  internal Str hisInterval() { rec["novantHisInterval"] ?: "15min" }
 }
