@@ -1,6 +1,8 @@
 # Changelog
 
-## Version 0.17 (working)
+## Version 0.18 (working)
+
+## Version 0.17 (8-Dec-2021)
 * Fix syncs to skip `disabled` connectors
 * New `novantHisInterval` tag to support `1min`, `5min`, `15min` his intervals
 * New columns in `Conn|Novant` view: `disabled` and `hisInterval`
