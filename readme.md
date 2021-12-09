@@ -27,10 +27,11 @@ new connector:
     apiKey: "***********"
     novantDeviceId: dv_xxxxxxxxxxxxx
     novantSyncFreq: "daily"
+    novantHisInterval: "15min"
 
 Where `apiKey` is the key you generated from the Novant platform, and
 'novantDeviceId' is the Novant device id for the device to connect. See
-**Syncing** section for details on `novantSyncFreq`.
+**Syncing** section for details on `novantSyncFreq` and `novantHisInterval`.
 
 ## Cur/Write/His
 
@@ -75,6 +76,12 @@ connector, the ext will automatically keep it up-to-date.
 In cases where this is not desirable, you can disable auto-sync by setting the
 `novantSyncFreq` on a connector to `"none"`.  You can manually sync these
 connectors using the **Conn Tool**.
+
+The Novant platform trends all data at `1min` intervals; however the default
+interval we pull data into SkySpark is `15min`.  To configure SkySpark to
+sync data at a more granular level, use the `novantHisInterval` tag, were the
+values can be `"1min"`, `"5min"`, or `"15min"`.  Note these are `Str` values
+not Numbers.
 
 ## Conn Tool
 
