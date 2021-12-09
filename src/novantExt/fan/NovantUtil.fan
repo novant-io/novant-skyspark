@@ -12,7 +12,7 @@ using haystack
 **
 ** NovantUtil
 **
-class NovantUtil
+internal class NovantUtil
 {
   ** Convert Novant API value to SkySpark ConnPoint value.
   static Obj toConnPointVal(ConnPoint p, Obj val)

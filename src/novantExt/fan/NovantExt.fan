@@ -33,8 +33,8 @@ const class NovantExt : ConnImplExt
   }
 
   ** The project actor for the current project.
-  const NovantProjActor projActor
+  internal const NovantProjActor projActor
 
   ** The sync actor for the current project.
-  const NovantSyncActor syncActor
+  internal const NovantSyncActor syncActor
 }

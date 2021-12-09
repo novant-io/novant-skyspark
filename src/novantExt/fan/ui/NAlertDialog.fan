@@ -14,7 +14,7 @@ using ui
 ** NAlertDialog
 *************************************************************************
 
-@Js class NAlertDialog : Dialog
+@Js internal class NAlertDialog : Dialog
 {
   ** Constructor.
   new make() : super()

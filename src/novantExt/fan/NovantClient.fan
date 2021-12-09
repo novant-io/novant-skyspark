@@ -30,7 +30,7 @@ class NovantClient
   }
 
   **
-  ** Request current values for given 'deviceId' and optional `pointIds`
+  ** Request current values for given 'deviceId' and optional 'pointIds'
   ** filter, or if null then return all point values for device.
   **
   ** If 'lastTs' is non-null, pass in as 'last_ts' argument, and return

@@ -15,7 +15,7 @@ using ui
 ** NSyncDialog
 *************************************************************************
 
-@Js class NSyncDialog : ContentDialog
+@Js internal class NSyncDialog : ContentDialog
 {
   new make(Dict[] conns)
   {

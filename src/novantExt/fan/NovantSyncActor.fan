@@ -17,7 +17,7 @@ using web
 *************************************************************************
 
 ** NovantSyncActor manages dispatching NovantSyncWorkers.
-const class NovantSyncActor
+internal const class NovantSyncActor
 {
   new make(NovantExt ext)
   {

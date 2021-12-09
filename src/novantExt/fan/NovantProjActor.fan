@@ -14,7 +14,7 @@ using connExt
 *************************************************************************
 
 ** NovantProjActor manages background work for entire project.
-const class NovantProjActor
+internal const class NovantProjActor
 {
   new make(NovantExt ext)
   {

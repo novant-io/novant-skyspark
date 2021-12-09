@@ -11,7 +11,7 @@ using domkit
 using haystack
 using ui
 
-@Js const class NovantActions
+@Js internal const class NovantActions
 {
   static Void sync(UiView view)
   {
