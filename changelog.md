@@ -1,6 +1,7 @@
 # Changelog
 
 ## Version 0.17 (working)
+* Fix syncs to skip `disabled` connectors
 
 ## Version 0.16 (19-Nov-2021)
 * Update dependency to SkySpark `3.1`

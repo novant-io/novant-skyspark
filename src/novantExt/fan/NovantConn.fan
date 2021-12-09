@@ -197,6 +197,8 @@ class NovantConn : Conn
   private Int lastValuesTicks
   private DateTime lastValuesTs := DateTime.defVal
 
+  internal Bool isDisabled() { rec["disabled"] != null }
+
   // prior to 3.0.29 (?) apiKey was stored as plain-text tag; so allow
   // fallback if not found in the password manager
   internal Str apiKey()     { ext.proj.passwords.get(rec.id.toStr) ?: rec->apiKey }

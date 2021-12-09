@@ -91,11 +91,16 @@ const class NovantSyncWorker
 
     try
     {
+      // short-circuit if disabled
       conn := this.conn
+      if (conn.isDisabled) return
+
+      // get sync span
       hisSpan := conn.hisStart != null && conn.hisEnd != null
         ? DateSpan(conn.hisStart, conn.hisEnd)
         : null
 
+      // sync each date
       span.eachDay |date|
       {
         ts1 := Duration.now
