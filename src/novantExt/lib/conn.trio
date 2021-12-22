@@ -25,14 +25,6 @@ is: ^str
 enum: ["none", "daily"]
 tagOn: ^novantConn
 --------------------------------------------------------------------------
-def: ^novantHisStart
-is: ^date
-tagOn: ^novantConn
---------------------------------------------------------------------------
-def: ^novantHisEnd
-is: ^date
-tagOn: ^novantConn
---------------------------------------------------------------------------
 def: ^novantHisInterval
 is: ^str
 enum: ["1min", "5min", "15min"]

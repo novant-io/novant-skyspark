@@ -7,6 +7,7 @@
 //
 
 using concurrent
+using connExt
 using folio
 using haystack
 using util
@@ -27,37 +28,20 @@ internal const class NovantSyncActor
 
   **
   ** Dispatch a new background actor to perform a trend sync for
-  ** the given 'conn' and 'span' range.  If 'span' is 'null', a
-  ** sync will be performed from 'Date.yesterday - novantLasySync'.
-  ** If 'novantLastSync' is not defined, only 'Date.yesterday'
-  ** will be synced.
+  ** the given 'conn' and 'span' range.
   ***
-  Void dispatchSync(NovantConn conn, DateSpan? span, Dict? opts)
+  Void dispatchSync(NovantConn conn, Obj? span, Dict? opts)
   {
-    // if span not defined, determine the range based on hisEnd;
-    // if still null then this conn is already synced thru today
-    // and we can short-circuit
-    if (span == null) span = defSpan(conn.hisEnd)
-    if (span == null) return
-
+    // default opts
     if (opts == null) opts = Etc.emptyDict
+
+    // convert to Span
+    if (span is Date) span = DateSpan.make(span)
+    if (span is DateSpan) span = ((DateSpan)span).toSpan(conn.tz)
 
     worker := NovantSyncWorker(conn, span, opts, ext.log)
     actor  := Actor(pool) |m| { worker.sync; return null }
     actor.send("run")
-  }
-
-  ** Get default span based on given 'hisEnd' date, or return 'null'
-  ** if the span is already up-to-date.
-  internal static DateSpan? defSpan(Date? hisEnd)
-  {
-    // short-circuit if already up-to-date
-    yesterday := Date.yesterday
-    if (hisEnd >= yesterday) return null
-
-    // find range
-    start := hisEnd==null ? yesterday : hisEnd+1day
-    return DateSpan(start, yesterday)
   }
 
   private const NovantExt ext
@@ -72,141 +56,155 @@ internal const class NovantSyncActor
 const class NovantSyncWorker
 {
   ** Constructor.
-  new make(NovantConn conn, DateSpan span, Dict opts, Log log)
+  new make(NovantConn conn, Span? span, Dict opts, Log log)
   {
     this.connUnsafe = Unsafe(conn)
     this.span = span
     this.log  = log
-
-    // opts
-    this.force = opts.has("force")
   }
 
   ** Perform REST API call and updateHisOk/Err work.
   Void sync()
   {
-    // TODO:
-    //   - support for passing in time_zone?
-    //   - support for non-Number types?
-
     try
     {
       // short-circuit if disabled
       conn := this.conn
       if (conn.isDisabled) return
 
-      // get sync span
-      hisSpan := conn.hisStart != null && conn.hisEnd != null
-        ? DateSpan(conn.hisStart, conn.hisEnd)
-        : null
+      // short-circuit if no points
+      if (conn.points.isEmpty) return
+
+      // map his points to working data structure
+      points := NovantSyncPoint[,]
+      refs   := Ref[,]
+      tz     := conn.tz
+      tm     := Date.today(tz).midnight
+      conn.points.each |p|
+      {
+        if (p.rec["novantHis"] is Str)
+        {
+          points.add(NovantSyncPoint(p))
+          refs.add(p.id)
+        }
+      }
+
+      // refresh backing rec for each point (the conn.point.rec instance
+      // gets cached on conn.open; so we need to update to latest copy;
+      // also use this loop to find last hisStart/End across all points
+      recs := conn.ext.proj.readByIdsList(refs)
+      rmap := Ref:Dict[:].setList(recs) |r| { r.id }
+
+      // collect points and recs into working sync point set
+      DateTime? hstart
+      DateTime? hend
+      points.each |p|
+      {
+        p.rec  = rmap[p.ref]
+        hstart = NovantUtil.minDateTime(hstart, p.hisStart)
+        hend   = NovantUtil.maxDateTime(hstart, p.hisEnd)
+      }
+
+      // if span is null, fallback to default which is hend+interval..today;
+      // or if hend is 'null' then yesterday..today
+      span := this.span
+      if (span == null)
+      {
+        span = hend != null
+          ? Span(hend + conn.hisIntervalDur, tm)
+          : Span(Date.yesterday(tz).midnight, tm)
+      }
+
+      // clamp span.end to today
+      if (span.end > tm) span = Span(span.start, tm)
 
       // sync each date
       span.eachDay |date|
       {
         ts1 := Duration.now
 
-        // never sync past yesterday
-        if (date > Date.yesterday) return
+        // collect points that need to be synced for this date
+        syncPoints := points.findAll |p| { p.needSync(date) }
+        syncIds    := syncPoints.join(",") |p| { p.novantHis }
 
-        // if we are trying to sync yesterday, we need to wait
-        // until 2:00am local time to ensure device data is
-        // fully synced up to cloud
-        if (date == Date.yesterday && DateTime.now.hour < 2) return
+        // skip this day if no points found
+        if (syncPoints.isEmpty) return
 
-        // skip if already synced unless force=true
-        if (!force && hisSpan != null && hisSpan.contains(date))
-        {
-          log.info("already synced ${date}")
-          return
-        }
+        // request trend data
+        res := conn.client.trends(conn.deviceId, syncIds, date, conn.hisInterval)
+        List data := res["data"]
 
-        // get comma-sep point id list
-        pointIds := StrBuf()
-        conn.points.each |p|
-        {
-          id := p.rec["novantHis"]
-          if (id != null) pointIds.join(id, ",")
-        }
+        // cache updateHisOk clip param
+        cstart := date.midnight(tz)
+        cend   := (date+1day).midnight(tz)
+        clip   := Span.makeAbs(cstart, cend)
 
-        // short-ciruit if no points
-        if (pointIds.isEmpty) return
-
-        // request data
-        c := WebClient(`https://api.novant.io/v1/trends`)
-        c.reqHeaders["Authorization"] = "Basic " + "${conn.apiKey}:".toBuf.toBase64
-        c.reqHeaders["Accept-Encoding"] = "gzip"
-        c.postForm([
-          "device_id": conn.deviceId,
-          "date":      date.toStr,
-          "point_ids": pointIds.toStr,
-          "interval":  conn.hisInterval,
-        ])
-
-        // validate
-        if (c.resCode == 401) throw IOErr("Unauthorized")
-        if (c.resCode != 200) throw IOErr("Invalid response code: ${c.resCode}")
-
-        // parse and cache response
-        Map map   := JsonInStream(c.resStr.in).readJson
-        List data := map["data"]
-
-        // iterate by point to add his
-        numPoints := 0
-        conn.points.each |point|
+        // iterate by point to add his items
+        syncPoints.each |p|
         {
           try
           {
-            // short-circuit if not a historized point
-            id := point.rec["novantHis"]?.toStr
-            if (id == null) return
-
             items := HisItem[,]
-            start := date.midnight(point.tz)
-            end   := (date+1day).midnight(point.tz)
-            clip  := Span.makeAbs(start, end)
             data.each |Map entry|
             {
-              ts  := DateTime.fromIso(entry["ts"]).toTimeZone(point.tz)
-              val := entry["${id}"] as Float
+              ts  := DateTime.fromIso(entry["ts"]).toTimeZone(tz)
+              val := entry["${p.novantHis}"] as Float
               if (val != null)
               {
-                pval := NovantUtil.toConnPointVal(point, val)
+                pval := NovantUtil.toConnPointVal(p.cp, val)
                 items.add(HisItem(ts, pval))
               }
             }
-            point.updateHisOk(items, clip)
-            numPoints++
+            p.cp.updateHisOk(items, clip)
           }
-          catch (Err err) { point.updateHisErr(err) }
+          catch (Err err) { p.cp.updateHisErr(err) }
         }
-
-        // update hisStart/End
-        if (conn.hisStart == null || date < conn.hisStart) commit("novantHisStart", date)
-        if (conn.hisEnd   == null || conn.hisEnd < date)   commit("novantHisEnd", date)
 
         // log metrics
         ts2 := Duration.now
         dur := (ts2 - ts1).toMillis
         log.info("syncHis successful for '${conn.dis}' @ ${date}" +
-                 " [${numPoints} points, ${dur.toLocale}ms]")
+                 " [${syncPoints.size} points, ${dur.toLocale}ms]")
       }
     }
     catch (Err err) { log.err("syncHis failed for '${conn.dis}'", err) }
   }
 
-  ** Update conn tag.
-  private Void commit(Str tag, Obj val)
-  {
-    // pull rec to make sure we have the most of up-to-date
-    rec := conn.ext.proj.readById(conn.rec.id)
-    conn.ext.proj.commit(Diff(rec, [tag:val]))
-  }
-
   private NovantConn conn() { connUnsafe.val }
   private const Unsafe connUnsafe
-  private const DateSpan span
+  private const Span? span
   private const Log log
-
-  // options
-  private const Bool force := false
 }
+
+*************************************************************************
+** NovantSyncPoint
+*************************************************************************
+
+internal class NovantSyncPoint
+{
+  new make(ConnPoint p) { this.cp = p }
+
+  ConnPoint cp   // backing ConnPoint
+  Dict? rec      // working copy of backing rec
+
+  Ref ref()            { cp.id }              // skyspark point id
+  Str novantHis()      { rec["novantHis"] }   // 'pxx' point id
+  DateTime? hisStart() { rec["hisStart"]  }   // 'hisStart' or null
+  DateTime? hisEnd()   { rec["hisEnd"]    }   // 'hisEnd' or null
+  Duration hisInterval() { ((NovantConn)cp.conn).hisIntervalDur }
+
+  ** Return true if this point needs to sync given date.
+  Bool needSync(Date d)
+  {
+    // always sync if no his yet
+    if (hisStart == null || hisEnd == null) return true
+
+    // sync if date is before or after current his range
+    if (d.midnight(cp.tz) < hisStart) return true
+    if ((d+1day).midnight(cp.tz) > (hisEnd + hisInterval)) return true
+
+    // no sync needed
+    return false
+  }
+}
+

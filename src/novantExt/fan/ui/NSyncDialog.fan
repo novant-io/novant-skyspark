@@ -22,18 +22,18 @@ using ui
     this.conns = conns
 
     start := Date.yesterday
+    end   := Date.yesterday
     conns.each |c|
     {
-      Date? d := c["hisStart"] // NOTE: this is novantReadConns; not real rec
+      // NOTE: this is from novantReadConns(); not real rec
+      DateTime? d := c["hisEnd"] as DateTime
       if (d == null) return
-      if (d >= start) return
-      start = d
+      if (d.date >= start) return
+      start = d.date
     }
 
-    end    := Date.yesterday
-    endDis := end.toLocale("MMM D, YYYY")
-
-    this.input = Input.makeForTag(UiSession.cur, "date", start)
+    this.inputStart = Input.makeForTag(UiSession.cur, "date", start)
+    this.inputEnd   = Input.makeForTag(UiSession.cur, "date", end)
 
     box := Box
     {
@@ -55,8 +55,9 @@ using ui
         it.style->marginLeft = "52px"
         it.gaps = ["8px"]
         Label { it.text="Sync from" },
-        input.with { it.style->width="auto" },
-        Label { it.text="to ${endDis}" },
+        inputStart.with { it.style->width="auto" },
+        Label { it.text="to" },
+        inputEnd.with { it.style->width="auto" },
       },
     }
 
@@ -68,7 +69,9 @@ using ui
     this.onAction |key|
     {
       if (key == "cancel") return true
-      span := DateSpan(input.save, end)
+      Date s := inputStart.save
+      Date e := inputEnd.save
+      span := DateSpan(s, e)
       cbOk?.call(this, span)
       return false
     }
@@ -81,6 +84,7 @@ using ui
   }
 
   private const Dict[] conns
-  private Input input
+  private Input inputStart
+  private Input inputEnd
   private Func? cbOk
 }

@@ -41,7 +41,6 @@ const class NovantLib
   @Axon { admin = true }
   static Void novantSync(Obj conns, Obj? span := null, Obj? opts := null)
   {
-    if (span is Date) span = DateSpan.make(span)
     Etc.toRecs(conns).each |conn|
     {
       dopts := Etc.makeDict(opts)
@@ -61,12 +60,10 @@ const class NovantLib
     {
       pts := cx.readAll("point and novantConnRef==${c.id.toCode}")
       cx.call("hisClear", [pts, null])
-
-      tags := ["novantHisStart":Remove.val, "novantHisEnd":Remove.val]
-      cx.proj.commit(Diff(c, tags))
     }
   }
 
+  ** UI support.
   @NoDoc @Axon { admin=true }
   static Grid novantReadConns()
   {
@@ -78,22 +75,29 @@ const class NovantLib
     cx := Context.cur
     cx.readAll("novantConn").each |r|
     {
-      numPoints := cx.readAll("point and novantConnRef == ${r.id.toCode}").size
+      // hisStart/End is min/max of all points underneath
+      DateTime? hisStart
+      DateTime? hisEnd
+      pts := cx.readAll("point and novantConnRef == ${r.id.toCode}")
+      pts.each |p|
+      {
+        hisStart = NovantUtil.minDateTime(hisStart, p["hisStart"] as DateTime)
+        hisEnd   = NovantUtil.maxDateTime(hisEnd,   p["hisEnd"] as DateTime)
+      }
 
-      Date? start := r["novantHisStart"]
-      Date? end   := r["novantHisEnd"]
-      numHis := start == null || end == null ? null : end-start+1day
+      // get his days
+      hisDays := NovantUtil.numDays(hisStart, hisEnd)
 
       g.addRow([
         r.id,
         r->novantDeviceId,
         r["disabled"],
-        Number.makeInt(numPoints),
+        Number.makeInt(pts.size),
         r->novantSyncFreq,
         r["novantHisInterval"] ?: "15min",
-        start,
-        end,
-        numHis == null ? null : Number.makeDuration(numHis),
+        hisStart,
+        hisEnd,
+        hisDays == null ? null : Number.makeDuration(hisDays),
       ])
     }
 

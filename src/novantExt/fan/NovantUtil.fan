@@ -29,5 +29,29 @@ internal class NovantUtil
       default:       throw IOErr("Unsupported kind '${kind}'")
     }
   }
+
+  ** Get min of given dates, or 'null' if either is 'null'.
+  static DateTime? minDateTime(DateTime? a, DateTime? b)
+  {
+    if (a == null || b == null) return a ?: b
+    return a <= b ? a : b
+  }
+
+  ** Get max of given dates, or 'null' if either is 'null'.
+  static DateTime? maxDateTime(DateTime? a, DateTime? b)
+  {
+    if (a == null || b == null) return a ?: b
+    return a >= b ? a : b
+  }
+
+  ** Get number of days between given dates, or 'null' if either is 'null'.
+  static Duration? numDays(DateTime? a, DateTime? b)
+  {
+    if (a == null || b == null) return null
+    dur := b - a
+    day := dur.ticks / 1day.ticks
+    if (dur.ticks % 1day.ticks > 0) day++
+    return Duration.fromStr("${day}day")
+  }
 }
 

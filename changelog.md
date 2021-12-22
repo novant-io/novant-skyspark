@@ -1,6 +1,9 @@
 # Changelog
 
 ## Version 0.18 (working)
+* Rework his sync to base off point `histStart` and `hisEnd`
+* Improve his sync behavoir to optimzie point list for each sync date
+* Remove obsolete `novantHisStart` and `novantHisEnd` tags
 
 ## Version 0.17 (8-Dec-2021)
 * Fix syncs to skip `disabled` connectors

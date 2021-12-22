@@ -15,6 +15,7 @@ using skyarcd
 **
 class NovantTest : Test
 {
+  /*
   Void testDefSpan()
   {
     verifySpan(null,               Date.yesterday,     Date.yesterday)
@@ -34,5 +35,6 @@ class NovantTest : Test
     verifyEq(span.start, start)
     verifyEq(span.end,   end)
   }
+  */
 }
 

@@ -71,5 +71,6 @@ internal const class NovantProjActor
   private const Actor actor
 
   private const Duration pollFreq := 1sec   // freq to poll for work
-  private const Int syncFreq := 1min.ticks  // freq to check for sync jobs
+  private const Int syncFreq := 1hr.ticks   // freq to check for sync jobs
+
 }

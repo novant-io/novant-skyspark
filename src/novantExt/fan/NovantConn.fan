@@ -39,7 +39,7 @@ class NovantConn : Conn
 
   override Dict onPing()
   {
-    NovantClient(apiKey).ping(deviceId)
+    client.ping(deviceId)
     return Etc.emptyDict
   }
 
@@ -69,7 +69,7 @@ class NovantConn : Conn
       }
 
       // request values
-      Str:Obj? res := NovantClient(apiKey).vals(deviceId, pointIds.toStr, lastValuesTs)
+      Str:Obj? res := client.vals(deviceId, pointIds.toStr, lastValuesTs)
       this.lastValuesTs = DateTime.fromIso(res["ts"])
 
       // TODO: can this be cached somewhere?
@@ -123,7 +123,7 @@ class NovantConn : Conn
 
       // issue write
       pid := point.rec["novantWrite"]
-      NovantClient(apiKey).write(deviceId, pid, fval, pri)
+      client.write(deviceId, pid, fval, pri)
 
       // update ok
       point.updateWriteOk(val, level)
@@ -152,7 +152,7 @@ class NovantConn : Conn
 
     // cache points results for 1min
     now := Duration.nowTicks
-    if (now-lastPointsTicks > 1min.ticks) this.pointsReq = NovantClient(apiKey).points(deviceId)
+    if (now-lastPointsTicks > 1min.ticks) this.pointsReq = client.points(deviceId)
     this.lastPointsTicks = now
 
     Obj[] sources := pointsReq["sources"]
@@ -198,12 +198,22 @@ class NovantConn : Conn
   private DateTime lastValuesTs := DateTime.defVal
 
   internal Bool isDisabled() { rec["disabled"] != null }
-
-  // prior to 3.0.29 (?) apiKey was stored as plain-text tag; so allow
-  // fallback if not found in the password manager
-  internal Str apiKey()      { ext.proj.passwords.get(rec.id.toStr) ?: rec->apiKey }
   internal Str deviceId()    { rec->novantDeviceId }
-  internal Date? hisStart()  { rec["novantHisStart"] }
-  internal Date? hisEnd()    { rec["novantHisEnd"]   }
   internal Str hisInterval() { rec["novantHisInterval"] ?: "15min" }
+  internal Duration hisIntervalDur() { Duration.fromStr(hisInterval) }
+
+  ** TimeZone for this device (assume all points are same tz).
+  internal TimeZone? tz()
+  {
+    points.isEmpty ? null : points.first.tz
+  }
+
+  ** Get an authenicated NovantClient instance.
+  internal NovantClient client()
+  {
+    // prior to 3.0.29 (?) apiKey was stored as plain-text tag;
+    // so allow fallback if not found in the password manager
+    apiKey := ext.proj.passwords.get(rec.id.toStr) ?: rec->apiKey
+    return NovantClient(apiKey)
+  }
 }

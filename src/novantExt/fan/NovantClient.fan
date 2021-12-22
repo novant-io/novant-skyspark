@@ -61,6 +61,20 @@ class NovantClient
     ])
   }
 
+  ** Get trend data for given list of points, or throws 'IOErr' if failed.
+  Str:Obj? trends(Str deviceId, Str pointIds, Date date, Str? interval := null)
+  {
+    args := [
+      "device_id": deviceId,
+      "point_ids": pointIds,
+      "date":      date.toStr,
+    ]
+    if (interval != null) args["interval"] = interval
+
+    // TODO FIXIT: we need a streaming JsonReader here
+    return invoke("trends", args)
+  }
+
   ** Invoke API request or throw IOErr if error.
   private Str:Obj? invoke(Str op, Str:Str args)
   {

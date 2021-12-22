@@ -67,10 +67,6 @@ The default is to sync trend data for all points under a connector daily. A new
 connector will begin syncing history 'yesterday'.  If you wish to sync previous
 data that is available, see the **Conn Tool** section below.
 
-By design, the Novant platform trends data "day-behind."  Which means your
-latest data will be up to midnight yesterday.  Once you have created a new
-connector, the ext will automatically keep it up-to-date.
-
 In cases where this is not desirable, you can disable auto-sync by setting the
 'novantSyncFreq' on a connector to '"none"'.  You can manually sync these
 connectors using the **Conn Tool**.
@@ -89,9 +85,9 @@ diagnostic information.
 
 Sync History [#connToolSync]
 ============================
-The Sync History action will force a manual history sync for a given date
+The Sync History action will initiate a manual history sync for a given date
 range. This can be used to sync previous data before the connector was created
-in SkySpark. Syncing is optimized to skip days where data was already synced.
+in SkySpark.
 
 Clear History [#connToolClear]
 ==============================
