@@ -1,6 +1,8 @@
 # Changelog
 
-## Version 0.18 (working)
+## Version 0.19 (working)
+
+## Version 0.18 (27-Dec-2021)
 * Rework his sync to base off point `histStart` and `hisEnd`
 * Improve his sync behavoir to optimzie point list for each sync date
 * Remove obsolete `novantHisStart` and `novantHisEnd` tags
