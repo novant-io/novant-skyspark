@@ -79,7 +79,7 @@ const class NovantSyncWorker
       points := NovantSyncPoint[,]
       refs   := Ref[,]
       tz     := conn.tz
-      tm     := Date.today(tz).midnight
+      tm     := Date.today(tz).midnight(tz)
       conn.points.each |p|
       {
         if (p.rec["novantHis"] is Str)
