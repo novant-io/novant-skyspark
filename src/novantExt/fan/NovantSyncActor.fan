@@ -112,7 +112,7 @@ const class NovantSyncWorker
       {
         span = hend != null
           ? Span(hend + conn.hisIntervalDur, tm)
-          : Span(Date.yesterday(tz).midnight, tm)
+          : Span(Date.yesterday(tz).midnight(tz), tm)
       }
 
       // clamp span.end to today
