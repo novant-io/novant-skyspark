@@ -1,7 +1,7 @@
 # Changelog
 
 ## Version 0.19 (working)
-* Fix sync actor for server timezone != device timezone
+* Fix timezone bugs when server timezone != device timezone
 
 ## Version 0.18 (27-Dec-2021)
 * Rework his sync to base off point `histStart` and `hisEnd`
