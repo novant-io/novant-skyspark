@@ -1,6 +1,8 @@
 # Changelog
 
-## Version 0.19 (working)
+## Version 0.20 (working)
+
+## Version 0.19 (27-Jan-2022)
 * Fix timezone bugs when server timezone != device timezone
 * Add support for `force` opt for trend syncs
 
