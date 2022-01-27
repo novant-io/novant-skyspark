@@ -34,6 +34,7 @@ using ui
 
     this.inputStart = Input.makeForTag(UiSession.cur, "date", start)
     this.inputEnd   = Input.makeForTag(UiSession.cur, "date", end)
+    this.forceSync  = Checkbox {}
 
     box := Box
     {
@@ -59,6 +60,11 @@ using ui
         Label { it.text="to" },
         inputEnd.with { it.style->width="auto" },
       },
+      Elem {
+        it.style->marginLeft = "52px"
+        it.style->paddingTop = "10px"
+        forceSync.wrap("Force sync if already synced"),
+      },
     }
 
     this.title   = "Sync"
@@ -71,13 +77,16 @@ using ui
       if (key == "cancel") return true
       Date s := inputStart.save
       Date e := inputEnd.save
+      Bool f := forceSync.checked
       span := DateSpan(s, e)
-      cbOk?.call(this, span)
+      opts := Str:Obj?[:]
+      if (f) opts["force"] = Marker.val
+      cbOk?.call(this, span, Etc.makeDict(opts))
       return false
     }
   }
 
-  This onOk(|NSyncDialog,DateSpan| f)
+  This onOk(|NSyncDialog,DateSpan,Dict| f)
   {
     this.cbOk = f
     return this
@@ -86,5 +95,6 @@ using ui
   private const Dict[] conns
   private Input inputStart
   private Input inputEnd
+  private Checkbox forceSync
   private Func? cbOk
 }

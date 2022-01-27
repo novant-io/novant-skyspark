@@ -2,6 +2,7 @@
 
 ## Version 0.19 (working)
 * Fix timezone bugs when server timezone != device timezone
+* Add support for `force` opt for trend syncs
 
 ## Version 0.18 (27-Dec-2021)
 * Rework his sync to base off point `histStart` and `hisEnd`

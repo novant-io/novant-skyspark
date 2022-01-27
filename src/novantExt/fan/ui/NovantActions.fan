@@ -16,9 +16,9 @@ using ui
   static Void sync(UiView view)
   {
     NSyncDialog(view.sel)
-      .onOk |d,span| {
+      .onOk |d,span,opts| {
         sel := view.sel.map |r| { r.id }
-        invoke(view, d, "novantSync", [sel,span])
+        invoke(view, d, "novantSync", [sel,span,opts])
       }
       .open
   }
@@ -47,7 +47,7 @@ using ui
     }.open
   }
 
-  static Void invoke(UiView view, Dialog dlg, Str func, Obj[] args)
+  static Void invoke(UiView view, Dialog dlg, Str func, Obj?[] args)
   {
     expr := UiUtil.makeAxonCall(func, args)
     req  := Etc.makeMapGrid(null, ["expr":expr.toStr])

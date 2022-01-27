@@ -60,6 +60,7 @@ const class NovantSyncWorker
   {
     this.connUnsafe = Unsafe(conn)
     this.span = span
+    this.opts = opts
     this.log  = log
   }
 
@@ -74,6 +75,9 @@ const class NovantSyncWorker
 
       // short-circuit if no points
       if (conn.points.isEmpty) return
+
+      // check options
+      force := opts["force"] != null
 
       // map his points to working data structure
       points := NovantSyncPoint[,]
@@ -124,7 +128,7 @@ const class NovantSyncWorker
         ts1 := Duration.now
 
         // collect points that need to be synced for this date
-        syncPoints := points.findAll |p| { p.needSync(date) }
+        syncPoints := points.findAll |p| { force || p.needSync(date) }
         syncIds    := syncPoints.join(",") |p| { p.novantHis }
 
         // skip this day if no points found
@@ -173,6 +177,7 @@ const class NovantSyncWorker
   private NovantConn conn() { connUnsafe.val }
   private const Unsafe connUnsafe
   private const Span? span
+  private const Dict opts
   private const Log log
 }
 
