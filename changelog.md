@@ -1,6 +1,7 @@
 # Changelog
 
 ## Version 0.20 (working)
+* Update password lookup for `3.1.3` changes
 
 ## Version 0.19 (27-Jan-2022)
 * Fix timezone bugs when server timezone != device timezone

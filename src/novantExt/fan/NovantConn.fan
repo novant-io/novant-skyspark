@@ -211,9 +211,15 @@ class NovantConn : Conn
   ** Get an authenicated NovantClient instance.
   internal NovantClient client()
   {
-    // prior to 3.0.29 (?) apiKey was stored as plain-text tag;
-    // so allow fallback if not found in the password manager
-    apiKey := ext.proj.passwords.get(rec.id.toStr) ?: rec->apiKey
+    // in 3.1.3 passwords now get stored using {id tagName}, so we
+    // need to lookup with qualified key, otherwise fallback to
+    // pre-3.1.3 of just {id}, or < 3.0.29 apiKey was stored as a
+    // plain-text tag
+    apiKey := ext.proj.passwords.get("${rec.id} apiKey")
+    if (apiKey == null) apiKey = ext.proj.passwords.get("${rec.id}")
+    if (apiKey == null) rec->apiKey
+    if (apiKey == null) throw ArgErr("apiKey not found")
+
     return NovantClient(apiKey)
   }
 }
