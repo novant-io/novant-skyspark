@@ -1,6 +1,8 @@
 # Changelog
 
-## Version 0.20 (working)
+## Version 0.21 (working)
+
+## Version 0.20 (10-Mar-2022)
 * Update password lookup for `3.1.3` changes
 * Update `novantLearn` to include `pointAddr` tag for downstream point addr
 
