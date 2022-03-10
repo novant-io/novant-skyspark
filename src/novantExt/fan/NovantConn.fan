@@ -148,7 +148,9 @@ class NovantConn : Conn
   override Grid onLearn(Obj? arg)
   {
     gb := GridBuilder()
-    gb.addColNames(["dis","learn","point","kind","novantCur","novantWrite","novantHis","unit"])
+    gb.addColNames([
+      "dis","learn","point","pointAddr","kind","novantCur","novantWrite","novantHis","unit"
+    ])
 
     // cache points results for 1min
     now := Duration.nowTicks
@@ -165,12 +167,13 @@ class NovantConn : Conn
       {
         id   := p["id"]
         dis  := p["name"]
+        addr := p["addr"]
         kind := p["kind"] == "bool" ? "Bool" : "Number"
         cur  := "${id}"
         wrt  := p["writable"] == true ? "${id}" : null
         his  := "${id}"
         unit := p["unit"]
-        gb.addRow([dis, null, Marker.val, kind, cur, wrt, his, unit])
+        gb.addRow([dis, null, Marker.val, addr, kind, cur, wrt, his, unit])
       }
     }
     else
@@ -179,7 +182,7 @@ class NovantConn : Conn
       {
         dis  := s["name"]
         learn := Number.makeInt(i)
-        gb.addRow([dis, learn, null, null, null, null, null, null])
+        gb.addRow([dis, learn, null, null, null, null, null, null, null])
       }
     }
 
