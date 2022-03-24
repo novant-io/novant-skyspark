@@ -1,6 +1,8 @@
 # Changelog
 
-## Version 0.21 (working)
+## Version 0.22 (working)
+
+## Version 0.21 (24-Mar-2022)
 * Add debug tracing for each point in `NovantSyncWorker`
 * Update `NovantSyncWorker` to improve throughput
     - Throttle each `hisWrite` call with a small delay

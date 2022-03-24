@@ -18,7 +18,7 @@ class Build : BuildPod
   {
     podName = "novantExt"
     summary = "Novant Connector"
-    version = Version("0.21")
+    version = Version("0.22")
     meta    = [
                 "org.name":     "Novant LLC",
                 "license.name": "MIT",
