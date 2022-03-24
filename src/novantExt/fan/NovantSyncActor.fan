@@ -159,6 +159,7 @@ const class NovantSyncWorker
                 items.add(HisItem(ts, pval))
               }
             }
+            log.debug("sync [$p.novantHis] ${date}, items:${items.size}, clip:${clip}, dis:${p.cp.dis}")
             p.cp.updateHisOk(items, clip)
           }
           catch (Err err) { p.cp.updateHisErr(err) }

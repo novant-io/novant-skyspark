@@ -1,6 +1,7 @@
 # Changelog
 
 ## Version 0.21 (working)
+* Add debug tracing for each point in `NovnantSyncActor`
 
 ## Version 0.20 (10-Mar-2022)
 * Update password lookup for `3.1.3` changes
