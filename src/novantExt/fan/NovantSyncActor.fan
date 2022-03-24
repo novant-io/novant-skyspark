@@ -148,6 +148,7 @@ const class NovantSyncWorker
         {
           try
           {
+            // collect hisitems to sync for this point
             items := HisItem[,]
             data.each |Map entry|
             {
@@ -159,8 +160,14 @@ const class NovantSyncWorker
                 items.add(HisItem(ts, pval))
               }
             }
-            log.debug("sync [$p.novantHis] ${date}, items:${items.size}, clip:${clip}, dis:${p.cp.dis}")
+            log.debug("sync [$p.novantHis] ${date}, items:${items.size}, " +
+                      "clip:${clip}, dis:${p.cp.dis}")
             p.cp.updateHisOk(items, clip)
+
+            // sleep to throttle utilization, then block until
+            // we know syncs are complete
+            Actor.sleep(20ms)
+            conn.ext.proj.sync(1min)
           }
           catch (Err err) { p.cp.updateHisErr(err) }
         }
