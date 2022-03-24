@@ -78,6 +78,12 @@ const class NovantSyncWorker
 
       // check options
       force := opts["force"] != null
+      [Ref:Ref]? idMap := null
+      if (opts["pointIds"] != null)
+      {
+        Ref[] list := opts["pointIds"]
+        idMap = Ref:Ref[:].setList(list)
+      }
 
       // map his points to working data structure
       points := NovantSyncPoint[,]
@@ -88,6 +94,8 @@ const class NovantSyncWorker
       {
         if (p.rec["novantHis"] is Str)
         {
+          // skip point if whitelist was specified and not contained
+          if (idMap != null && idMap[p.id] == null) return
           points.add(NovantSyncPoint(p))
           refs.add(p.id)
         }

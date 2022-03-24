@@ -5,6 +5,7 @@
 * Update `NovantSyncWorker` to improve throughput
     - Throttle each `hisWrite` call with a small delay
     - Block until queue is flushed before next `hisWrite`
+* Add new `novantSyncPoints` method to sync individual points
 
 ## Version 0.20 (10-Mar-2022)
 * Update password lookup for `3.1.3` changes
