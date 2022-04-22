@@ -75,6 +75,7 @@ const class NovantSyncWorker
 
       // short-circuit if no points
       if (conn.points.isEmpty) return
+      debug("# SYNC_START")
 
       // check options
       force := opts["force"] != null
@@ -122,18 +123,28 @@ const class NovantSyncWorker
       span := this.span
       if (span == null)
       {
-        span = hend != null
-          ? Span(hend + conn.hisIntervalDur, tm)
-          : Span(Date.yesterday(tz).midnight(tz), tm)
+        start := hend == null
+          ? Date.yesterday(tz).midnight(tz)
+          : hend + conn.hisIntervalDur
+
+        // short-circuit if we already up to today.midnight
+        if (start >= tm) return
+
+        // else set default span
+        span = Span(start, tm)
       }
+
 
       // clamp span.end to today
       if (span.end > tm) span = Span(span.start, tm)
+      debug("# sync_span:  ${span}")
 
       // sync each date
       span.eachDay |date|
       {
         ts1 := Duration.now
+        debug("#   sync_date: ${date}")
+        debug("#   sync_time: " + date.midnight(TimeZone("New_York")))
 
         // collect points that need to be synced for this date
         syncPoints := points.findAll |p| { force || p.needSync(date) }
@@ -156,19 +167,20 @@ const class NovantSyncWorker
         {
           try
           {
-            // collect hisitems to sync for this point
+            // collect hisitems to sync for this point; check date matches
+            // as sanity check API is not returning past/future timestamps
             items := HisItem[,]
             data.each |Map entry|
             {
               ts  := DateTime.fromIso(entry["ts"]).toTimeZone(tz)
               val := entry["${p.novantHis}"] as Float
-              if (val != null)
+              if (ts.date == date && val != null)
               {
                 pval := NovantUtil.toConnPointVal(p.cp, val)
                 items.add(HisItem(ts, pval))
               }
             }
-            log.debug("sync [$p.novantHis] ${date}, items:${items.size}, " +
+            debug("# sync [$p.novantHis] ${date}, items:${items.size}, " +
                       "clip:${clip}, dis:${p.cp.dis}")
             p.cp.updateHisOk(items, clip)
 
@@ -188,6 +200,13 @@ const class NovantSyncWorker
       }
     }
     catch (Err err) { log.err("syncHis failed for '${conn.dis}'", err) }
+    debug("# SYNC_END")
+  }
+
+  private Void debug(Str msg)
+  {
+    if (log.level != LogLevel.debug) echo(msg)
+    log.debug(msg)
   }
 
   private NovantConn conn() { connUnsafe.val }
@@ -220,8 +239,10 @@ internal class NovantSyncPoint
     // always sync if no his yet
     if (hisStart == null || hisEnd == null) return true
 
-    // sync if date is before or after current his range
+    // sync if date is before hisStart
     if (d.midnight(cp.tz) < hisStart) return true
+
+    // sync if date if after hisEnd
     if ((d+1day).midnight(cp.tz) > (hisEnd + hisInterval)) return true
 
     // no sync needed
