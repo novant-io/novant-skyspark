@@ -134,7 +134,6 @@ const class NovantSyncWorker
         span = Span(start, tm)
       }
 
-
       // clamp span.end to today
       if (span.end > tm) span = Span(span.start, tm)
       debug("# sync_span:  ${span}")
@@ -142,6 +141,10 @@ const class NovantSyncWorker
       // sync each date
       span.eachDay |date|
       {
+        // Span.eachDay is giving us an extra day when end == today.midnight
+        // so short-circuit if we pick that up
+        if (date >= tm.date) return
+
         ts1 := Duration.now
         debug("#   sync_date: ${date}")
         debug("#   sync_time: " + date.midnight(TimeZone("New_York")))
@@ -167,14 +170,15 @@ const class NovantSyncWorker
         {
           try
           {
-            // collect hisitems to sync for this point; check date matches
-            // as sanity check API is not returning past/future timestamps
+            // collect hisitems to sync for this point; check timestamp
+            // is < today.midnight as sanity check we are not getting
+            // future data
             items := HisItem[,]
             data.each |Map entry|
             {
               ts  := DateTime.fromIso(entry["ts"]).toTimeZone(tz)
               val := entry["${p.novantHis}"] as Float
-              if (ts.date == date && val != null)
+              if (val != null)
               {
                 pval := NovantUtil.toConnPointVal(p.cp, val)
                 items.add(HisItem(ts, pval))
