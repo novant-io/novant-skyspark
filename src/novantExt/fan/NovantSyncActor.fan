@@ -217,7 +217,7 @@ const class NovantSyncWorker
     log.debug(msg)
   }
 
-  ** Min time before we issue a trend sync.
+  ** Min time of day before we issue a trend sync.
   private static const Time minSyncTime := Time("02:30:00")
 
   private NovantConn conn() { connUnsafe.val }
