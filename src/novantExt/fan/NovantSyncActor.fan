@@ -151,7 +151,7 @@ const class NovantSyncWorker
 
         ts1 := Duration.now
         debug("#   sync_date: ${date}")
-        debug("#   sync_time: " + date.midnight(TimeZone("New_York")))
+        debug("#   sync_time: " + date.midnight(conn.tz))
 
         // collect points that need to be synced for this date
         syncPoints := points.findAll |p| { force || p.needSync(date) }
@@ -213,7 +213,7 @@ const class NovantSyncWorker
 
   private Void debug(Str msg)
   {
-    if (log.level != LogLevel.debug) echo(msg)
+    // if (log.level != LogLevel.debug) echo(msg)
     log.debug(msg)
   }
 
