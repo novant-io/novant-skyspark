@@ -1,6 +1,8 @@
 # Changelog
 
-## Version 0.22 (working)
+## Version 0.23 (working)
+
+## Version 0.22 (25-Apr-2022)
 * Improve trend sync behavoir
 
 ## Version 0.21 (24-Mar-2022)
