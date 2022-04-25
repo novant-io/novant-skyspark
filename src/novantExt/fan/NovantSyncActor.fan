@@ -75,7 +75,11 @@ const class NovantSyncWorker
 
       // short-circuit if no points
       if (conn.points.isEmpty) return
-      debug("# SYNC_START")
+
+      // never sync before minSyncTime to allow upstream trends
+      // to get synced first; and avoid DST edge cases
+      if (DateTime.now.toTimeZone(conn.tz).time < minSyncTime) return
+      debug("# SYNC_START (${conn.tz})")
 
       // check options
       force := opts["force"] != null
@@ -212,6 +216,9 @@ const class NovantSyncWorker
     if (log.level != LogLevel.debug) echo(msg)
     log.debug(msg)
   }
+
+  ** Min time before we issue a trend sync.
+  private static const Time minSyncTime := Time("02:30:00")
 
   private NovantConn conn() { connUnsafe.val }
   private const Unsafe connUnsafe

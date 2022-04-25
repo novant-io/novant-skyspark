@@ -1,6 +1,7 @@
 # Changelog
 
 ## Version 0.22 (working)
+* Improve trend sync behavoir
 
 ## Version 0.21 (24-Mar-2022)
 * Add debug tracing for each point in `NovantSyncWorker`
