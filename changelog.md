@@ -1,6 +1,7 @@
 # Changelog
 
 ## Version 0.23 (working)
+* Bump `minSyncTime` to `05:00` to avoid DST issues
 
 ## Version 0.22 (25-Apr-2022)
 * Improve trend sync behavoir

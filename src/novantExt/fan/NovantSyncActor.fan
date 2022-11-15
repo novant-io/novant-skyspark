@@ -218,7 +218,7 @@ const class NovantSyncWorker
   }
 
   ** Min time of day before we issue a trend sync.
-  private static const Time minSyncTime := Time("02:30:00")
+  private static const Time minSyncTime := Time("05:00:00")
 
   private NovantConn conn() { connUnsafe.val }
   private const Unsafe connUnsafe
