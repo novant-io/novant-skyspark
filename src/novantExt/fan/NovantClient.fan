@@ -38,9 +38,7 @@ class NovantClient
     return res["points"]
   }
 
-  **
   ** Request current values for given source. Throws 'IOErr' if request fails.
-  **
   Str:Map vals(Str sourceId)
   {
     map := Str:Obj[:]
@@ -52,6 +50,24 @@ class NovantClient
       map[id] = r
     }
     return map
+  }
+
+  ** Request trend date for given date. Throws 'IOErr' if request fails.
+  Void trendsEach(Date date, Str sourceId, Str pointId, TimeZone tz, |DateTime,Obj?| f)
+  {
+    res := invoke("trends", [
+      "date":      date.toStr,
+      "source_id": sourceId,
+      "point_ids": pointId,
+      "tz":        tz.name
+    ])
+    List trends := res["trends"]
+    trends.each |Map tr|
+    {
+      ts  := DateTime.fromIso(tr["ts"]).toTimeZone(tz)
+      val := tr[pointId]
+      f(ts, val)
+    }
   }
 
   ** Invoke API request or throw IOErr if error.

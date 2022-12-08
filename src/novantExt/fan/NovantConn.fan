@@ -29,8 +29,7 @@ class NovantConn : Conn
     NovantExt ext := ext
     switch (msg.id)
     {
-      // case "nvSync": ext.syncActor.dispatchSync(this, msg.a, msg.b); return null
-      default:       return super.receive(msg)
+      default: return super.receive(msg)
     }
   }
 
@@ -142,11 +141,31 @@ class NovantConn : Conn
 // His
 //////////////////////////////////////////////////////////////////////////
 
-  override Obj? onSyncHis(ConnPoint point, Span span)
+  override Obj? onSyncHis(ConnPoint p, Span span)
   {
-    // TODO FIXIT
-    // onSyncHis is a no-op; all his sync is handled internally
-    null
+    try
+    {
+      // get args
+      pid := p.rec["novantHis"] ?: throw Err("Missing novantHis tag")
+      sid := "s." + pid.toStr.split('.')[1]
+      tz  := TimeZone(p.rec["tz"])
+
+      // iterate span by date to request trends
+      items := HisItem[,]
+      span.eachDay |date|
+      {
+        client.trendsEach(date, sid, pid, tz) |ts,val|
+        {
+          if (val != null)
+          {
+            pval := NovantUtil.toConnPointVal(p, val)
+            items.add(HisItem(ts, pval))
+          }
+        }
+      }
+      return p.updateHisOk(items, span)
+    }
+    catch (Err err) { return p.updateHisErr(err) }
   }
 
 //////////////////////////////////////////////////////////////////////////
