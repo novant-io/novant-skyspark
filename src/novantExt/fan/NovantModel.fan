@@ -3,7 +3,8 @@
 // Licensed under the MIT License
 //
 // History:
-//   18 Nov 2019   Andy Frank   Creation
+//   18 Nov 2019  Andy Frank   Creation
+//    8 Dec 2022  Andy Frank  Update to Apollo
 //
 
 using haystack
@@ -18,12 +19,9 @@ const class NovantModel : ConnModel
   new make() : super(NovantModel#.pod)
   {
     connProto = Etc.makeDict([
-      "dis":            "Novant Conn",
-      "novantConn":     Marker.val,
-      "novantDeviceId": "dv_",
-      "apiKey":         "ak_",
-      "novantSyncFreq": "daily",
-      "novantHisInterval": "15min",
+      "dis":        "Novant Conn",
+      "novantConn": Marker.val,
+      "apiKey":     "ak_",
     ])
   }
 

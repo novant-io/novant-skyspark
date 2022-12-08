@@ -18,32 +18,30 @@ class Build : BuildPod
   {
     podName = "novantExt"
     summary = "Novant Connector"
-    version = Version("0.23")
+    version = Version("0.30")
     meta    = [
-                "org.name":     "Novant LLC",
-                "license.name": "MIT",
-                "skyarc.icons": "true",
-                "skyspark.docExt": "true"
-              ]
-    depends = ["sys 1.0",
-               "util 1.0",
-               "concurrent 1.0",
-               "web 1.0",
-               "dom 1.0",
-               "graphics 1.0",
-               "domkit 1.0",
-               "haystack 3.1",
-               "folio 3.1",
-               "axon 3.1",
-               "skyarcd 3.1",
-               "connExt 3.1",
-               "ui 3.1"]
-    srcDirs = [`fan/`,
-               `fan/ui/`,
-               `test/`]
-    resDirs = [`locale/`,
-               `lib/`,
-               `svg/`]
+      "org.name":     "Novant LLC",
+      "license.name": "MIT",
+      "skyarc.icons": "true",
+      "skyspark.docExt": "true"
+    ]
+    depends = [
+      "sys 1.0",
+      "util 1.0",
+      "concurrent 1.0",
+      "web 1.0",
+      "dom 1.0",
+      "graphics 1.0",
+      "domkit 1.0",
+      "haystack 3.1",
+      "folio 3.1",
+      "axon 3.1",
+      "skyarcd 3.1",
+      "connExt 3.1",
+      "ui 3.1"
+    ]
+    srcDirs = [`fan/`, `test/`]
+    resDirs = [`locale/`, `lib/`, `svg/`]
     index   =
     [
       "skyarc.ext": "novantExt::NovantExt",

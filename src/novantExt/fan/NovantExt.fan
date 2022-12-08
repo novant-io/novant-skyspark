@@ -28,13 +28,5 @@ const class NovantExt : ConnImplExt
 
   @NoDoc new make() : super(NovantModel())
   {
-    this.projActor = NovantProjActor(this)
-    this.syncActor = NovantSyncActor(this)
   }
-
-  ** The project actor for the current project.
-  internal const NovantProjActor projActor
-
-  ** The sync actor for the current project.
-  internal const NovantSyncActor syncActor
 }

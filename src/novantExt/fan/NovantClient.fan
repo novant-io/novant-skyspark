@@ -4,6 +4,7 @@
 //
 // History:
 //   12 Nov 2021  Andy Frank  Creation
+//    8 Dec 2022  Andy Frank  Update to Apollo
 //
 
 using util
@@ -17,74 +18,49 @@ class NovantClient
   ** Constructor.
   new make(Str apiKey) { this.apiKey = apiKey }
 
-  ** Invoke a 'ping' request for 'deviceId' throw 'IOErr' if ping failed.
-  Void ping(Str deviceId)
+  ** Request project metadata. Throws 'IOErr' if request fails.
+  Str:Obj? proj()
   {
-    invoke("ping", ["device_id": deviceId])
+    invoke("project", [:])
   }
 
-  ** Request point details for 'device_id', or throw 'IOErr' if failed.
-  Str:Obj? points(Str deviceId)
+  ** Request source list for project. Throws 'IOErr' if request fails.
+  [Str:Obj?][] sources()
   {
-    invoke("points", ["device_id": deviceId])
+    res := invoke("sources", [:])
+    return res["sources"]
   }
 
-  **
-  ** Request current values for given 'deviceId' and optional 'pointIds'
-  ** filter, or if null then return all point values for device.
-  **
-  ** If 'lastTs' is non-null, pass in as 'last_ts' argument, and return
-  ** an empty map if values have not been modified since 'last_ts'.
-  **
-  ** Throws 'IOErr' if request failed.
-  **
-  Str:Obj? vals(Str deviceId, Str? pointIds := null, DateTime? lastTs := null)
+  ** Request point list for given source. Throws 'IOErr' if request fails.
+  [Str:Obj?][] points(Str sourceId)
   {
-    args := ["device_id": deviceId]
-    if (lastTs   != null) args["last_ts"]   = lastTs.toIso
-    if (pointIds != null) args["point_ids"] = pointIds
-    return invoke("values", args)
+    res := invoke("points", ["source_id":sourceId])
+    return res["points"]
   }
 
   **
-  ** Write a value to given 'pointId'.  If 'val' is null then clear
-  ** the existing priority at 'priority' if applicable.  Throws 'IOErr'
-  ** if request failed.
+  ** Request current values for given source. Throws 'IOErr' if request fails.
   **
-  Void write(Str deviceId, Str pointId, Float? val, Int priority)
+  Str:Map vals(Str sourceId)
   {
-    invoke("write", [
-      "device_id": deviceId,
-      "point_id":  pointId,
-      "value":     val?.toStr ?: "null",
-      "priority":  priority.toStr,
-    ])
-  }
-
-  ** Get trend data for given list of points, or throws 'IOErr' if failed.
-  Str:Obj? trends(Str deviceId, Str pointIds, Date date, Str? interval := null)
-  {
-    args := [
-      "device_id": deviceId,
-      "point_ids": pointIds,
-      "date":      date.toStr,
-    ]
-    if (interval != null) args["interval"] = interval
-
-    // TODO FIXIT: we need a streaming JsonReader here
-    return invoke("trends", args)
+    map := Str:Obj[:]
+    res := invoke("values", ["source_id":sourceId])
+    List list := res["values"]
+    list.each |Map r|
+    {
+      id := r["id"]
+      map[id] = r
+    }
+    return map
   }
 
   ** Invoke API request or throw IOErr if error.
   private Str:Obj? invoke(Str op, Str:Str args)
   {
-    c := WebClient(`https://api.novant.io/v1/${op}`)
+    c := WebClient(`https://api2.novant.io/v1/${op}`)
     c.reqHeaders["Authorization"] = "Basic " + "${apiKey}:".toBuf.toBase64
     c.reqHeaders["Accept-Encoding"] = "gzip"
     c.postForm(args)
-
-    // this is returned for /values if last_ts is not yet updated
-    if (c.resCode == 304) return empty
 
     // check for error
     Str:Obj? json := JsonInStream(c.resStr.in).readJson

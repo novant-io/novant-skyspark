@@ -12,23 +12,7 @@ is: ^conn
 doc:
   Novant connector.
 --------------------------------------------------------------------------
-def: ^novantDeviceId
-is: ^str
-tagOn: ^novantConn
---------------------------------------------------------------------------
 def: ^apiKey
 is: ^password
 tagOn: ^novantConn
---------------------------------------------------------------------------
-def: ^novantSyncFreq
-is: ^str
-enum: ["none", "daily"]
-tagOn: ^novantConn
---------------------------------------------------------------------------
-def: ^novantHisInterval
-is: ^str
-enum: ["1min", "5min", "15min"]
-tagOn: ^novantConn
-doc:
-  Interval of trend data synced from Novant.
 --------------------------------------------------------------------------
