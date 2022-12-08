@@ -38,7 +38,7 @@ Where `apiKey` is the key you generated from the Novant platform.
 
 Current values are configured using the `novantCur` tag on a point. Writable
 points use the `novantWrite` tag.  Likewise histories use the `novantHis` tag.
-The value of these tags maps to the point ID for the Novant device, which will
+The value of these tags maps to the point ID for the Novant point, which will
 be in the format of `"s.{sourceId}.{pointId}"`.
 
     point
@@ -61,7 +61,3 @@ is ignored.
 
 The Novant connector supports learning.  Once a connector has been added, you
 can use the Site Builder to walk the device tree and add any or all points.
-
-## Trends
-
-TODO
