@@ -50,7 +50,7 @@ const class NovantLib
   **
   ** Each proxy record must contain:
   **  - `novantConnRef`: references the haystack connector
-  **  - `novantkHis`: Str identifier of the Novant point id
+  **  - `novantHis`: Str identifier of the Novant point id
   **  - `his`: all the standard historized point tags
   **
   ** If the range is unspecified, then an attempt is made to
