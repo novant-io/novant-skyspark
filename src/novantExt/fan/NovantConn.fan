@@ -158,8 +158,9 @@ class NovantConn : Conn
         {
           if (val != null)
           {
-            pval := NovantUtil.toConnPointVal(p, val)
-            items.add(HisItem(ts, pval))
+            // skip 'nan' vals
+            pval := NovantUtil.toConnPointVal(p, val, false)
+            if (pval != null) items.add(HisItem(ts, pval))
           }
         }
       }
