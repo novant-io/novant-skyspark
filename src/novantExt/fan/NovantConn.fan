@@ -156,12 +156,9 @@ class NovantConn : Conn
       {
         client.trendsEach(date, sid, pid, tz) |ts,val|
         {
-          if (val != null)
-          {
-            // skip 'nan' vals
-            pval := NovantUtil.toConnPointVal(p, val, false)
-            if (pval != null) items.add(HisItem(ts, pval))
-          }
+          // skip 'null' and 'na' vals
+          pval := NovantUtil.toConnPointVal(p, val, false)
+          if (pval != null) items.add(HisItem(ts, pval))
         }
       }
       return p.updateHisOk(items, span)

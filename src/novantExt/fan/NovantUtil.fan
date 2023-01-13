@@ -15,7 +15,7 @@ using haystack
 internal class NovantUtil
 {
   ** Convert Novant API value to SkySpark ConnPoint value.
-  static Obj? toConnPointVal(ConnPoint p, Obj val, Bool checked := true)
+  static Obj? toConnPointVal(ConnPoint p, Obj? val, Bool checked := true)
   {
     // check fault (TODO: pull thru error codes?)
     if (val isnot Float)
