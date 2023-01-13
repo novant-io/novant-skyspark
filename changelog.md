@@ -1,6 +1,7 @@
 # Changelog
 
 ## Version 0.33 (working)
+* Fix `novantLearn` to trimToNull `"unit"` as sanity check
 
 ## Version 0.32 (14-Dec-2022)
 * Update `onSyncHis` to skip `NaN` values during sync
