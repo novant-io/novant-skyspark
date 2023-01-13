@@ -200,7 +200,7 @@ class NovantConn : Conn
         cur  := "${id}"
         wrt  := p["writable"] == true ? "${id}" : null
         his  := "${id}"
-        unit := p["unit"]
+        unit := p["unit"]?.toStr?.trimToNull
         gb.addRow([dis, null, Marker.val, addr, kind, cur, wrt, his, unit])
       }
     }
