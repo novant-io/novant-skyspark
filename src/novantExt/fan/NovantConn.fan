@@ -130,10 +130,13 @@ class NovantConn : Conn
 // His
 //////////////////////////////////////////////////////////////////////////
 
-  override Obj? onSyncHis(ConnPoint p, Span span)
+  override Obj? onSyncHis(ConnPoint p, Span origSpan)
   {
     // update status to pending
     proj.commit(Diff(p.rec, pending, Diff.forceTransient))
+
+    // floor span to nearest minute to align queue keys
+    span := Span(floorTsMin(origSpan.start), floorTsMin(origSpan.end))
 
     // queue for next sync
     acc := hisSyncQueue[span] ?: ConnPoint[,]
@@ -214,6 +217,12 @@ class NovantConn : Conn
       pmap.vals.each |p| { p.updateHisErr(err) }
       log.err("syncHis failed: [${sid}, ${span}]", err)
     }
+  }
+
+  private DateTime floorTsMin(DateTime orig)
+  {
+    t := Time(orig.hour, orig.min, 0)
+    return orig.date.toDateTime(t, orig.tz)
   }
 
 //////////////////////////////////////////////////////////////////////////
