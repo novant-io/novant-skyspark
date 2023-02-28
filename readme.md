@@ -61,3 +61,13 @@ is ignored.
 
 The Novant connector supports learning.  Once a connector has been added, you
 can use the Site Builder to walk the device tree and add any or all points.
+
+## His Sync
+
+Novant connectors do not support `hisCollect`.  History can be synced using the
+standard SkySpark tools and with Axon using `novantSyncHis`.  For example:
+
+    readAll(point and novantHis).novantSyncHis(2023-02-01)
+
+History sync operates by queueing `syncHis` requests and attempting to batch
+request points in bulk to optimize API requests.

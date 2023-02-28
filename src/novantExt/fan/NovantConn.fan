@@ -293,5 +293,5 @@ class NovantConn : Conn
   private static const Dict syncing := Etc.makeDict(["hisStatus":"syncing"])
 
   private Duration lastVals := Duration.defVal   // vals counter to throttle /values API reqs
-  private Span:ConnPoint[] hisSyncQueue := [:]     // his sync queue
+  private Span:ConnPoint[] hisSyncQueue := [:]   // his sync queue
 }
