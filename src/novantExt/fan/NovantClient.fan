@@ -16,7 +16,12 @@ using web
 class NovantClient
 {
   ** Constructor.
-  new make(Str apiKey) { this.apiKey = apiKey }
+  new make(Str apiKey)
+  {
+    this.apiKey = apiKey
+    this.skyVer = Pod.find("skyarcd").version.toStr
+    this.extVer = NovantExt#.pod.version.toStr
+  }
 
   ** Request project metadata. Throws 'IOErr' if request fails.
   Str:Obj? proj()
@@ -39,10 +44,15 @@ class NovantClient
   }
 
   ** Request current values for given source. Throws 'IOErr' if request fails.
-  Str:Map vals(Str sourceId)
+  Str:Map vals(Str sourceId, Str[]? pointIds := null)
   {
+    // request
+    args := ["source_id":sourceId]
+    if (pointIds != null) args["point_ids"] = pointIds.join(",")
+    res := invoke("values", args)
+
+    // response
     map := Str:Obj[:]
-    res := invoke("values", ["source_id":sourceId])
     List list := res["values"]
     list.each |Map r|
     {
@@ -76,6 +86,7 @@ class NovantClient
     c := WebClient(`https://api2.novant.io/v1/${op}`)
     c.reqHeaders["Authorization"] = "Basic " + "${apiKey}:".toBuf.toBase64
     c.reqHeaders["Accept-Encoding"] = "gzip"
+    c.reqHeaders["User-Agent"] = "SkySpark/${skyVer} novantExt/${extVer}"
     c.postForm(args)
 
     // check for error
@@ -92,4 +103,6 @@ class NovantClient
   private static const Str:Obj? empty := [:]
 
   private const Str apiKey
+  private const Str skyVer
+  private const Str extVer
 }
