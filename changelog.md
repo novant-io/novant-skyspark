@@ -1,6 +1,8 @@
 # Changelog
 
-## Version 0.34 (working)
+## Version 0.35 (working)
+
+## Version 0.34 (28-Feb-2023)
 * Optimize `curVal` to use `point_ids` allowlist
 * Optimize `syncHis` to use queue design to batch requests
 * Add `User-Agent` to API requests
