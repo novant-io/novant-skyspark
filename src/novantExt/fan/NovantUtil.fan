@@ -33,5 +33,24 @@ internal class NovantUtil
       default:       throw IOErr("Unsupported kind '${kind}'")
     }
   }
+
+  ** Given a list of 'ConnPoint' return a map organized by source
+  ** id using the specified reference tag.
+  static Str:[Str:ConnPoint] toSourceMap(ConnPoint[] points, Str tag)
+  {
+    smap := Str:[Str:ConnPoint][:]
+    points.each |p|
+    {
+      id := p.rec[tag]
+      if (id != null)
+      {
+        sid  := "s." + id.toStr.split('.')[1]
+        pmap := smap[sid] ?: Str:ConnPoint[:]
+        pmap[id] = p
+        smap[sid] = pmap
+      }
+    }
+    return smap
+  }
 }
 

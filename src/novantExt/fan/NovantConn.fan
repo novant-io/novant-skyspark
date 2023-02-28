@@ -8,6 +8,7 @@
 //
 
 using connExt
+using folio
 using haystack
 using util
 using web
@@ -57,28 +58,16 @@ class NovantConn : Conn
       if (points.size == 0) return
 
       // short-circuit if polling under 1min
-      now := DateTime.nowTicks
-      if (now - lastValsTicks < 1min.ticks) return
-      this.lastValsTicks = now
+      now := Duration.now
+      if (now - lastVals < 1min) return
+      this.lastVals = now
 
-      // get source ids from points list
-      pmap := Str:ConnPoint[:]
-      smap := Str:Str[:]
-      points.each |p|
+      // request by source and update curVals
+      smap := NovantUtil.toSourceMap(points, "novantCur")
+      smap.each |pmap,sid|
       {
-        id := p.rec["novantCur"]
-        if (id != null)
-        {
-          pmap[id] = p
-          sid := "s." + id.toStr.split('.')[1]
-          smap[sid] = sid
-        }
-      }
-
-      // request each source and update curVals
-      smap.vals.each |sid|
-      {
-        vals := client.vals(sid)
+        pids := pmap.keys
+        vals := client.vals(sid, pids)
         vals.each |res,id|
         {
           ConnPoint? pt
@@ -143,27 +132,88 @@ class NovantConn : Conn
 
   override Obj? onSyncHis(ConnPoint p, Span span)
   {
+    // update status to pending
+    proj.commit(Diff(p.rec, pending, Diff.forceTransient))
+
+    // queue for next sync
+    acc := hisSyncQueue[span] ?: ConnPoint[,]
+    if (acc.find |x| { x.id == p.id } == null) acc.add(p)
+    hisSyncQueue[span] = acc
+    return null
+  }
+
+  override Void onHouseKeeping()
+  {
     try
     {
-      // get args
-      pid := p.rec["novantHis"] ?: throw Err("Missing novantHis tag")
-      sid := "s." + pid.toStr.split('.')[1]
-      tz  := TimeZone(p.rec["tz"])
+      // short-circuit if nothing to sync
+      if (hisSyncQueue.isEmpty) return
 
-      // iterate span by date to request trends
-      items := HisItem[,]
+      // iterate queue
+      hisSyncQueue.each |points, span|
+      {
+        // batch by source
+        smap := NovantUtil.toSourceMap(points, "novantHis")
+        smap.each |pmap,sid| { doSyncHis(span, sid, pmap) }
+      }
+    }
+    catch (Err err) { close(err) }
+    finally
+    {
+      // for now to be safe always flush queue
+      hisSyncQueue.clear
+    }
+  }
+
+  private Void doSyncHis(Span span, Str sid, Str:ConnPoint pmap)
+  {
+    try
+    {
+      pids  := pmap.keys          // point_id list
+      hmap  := Str:HisItem[][:]   // map of point_id:HisItem[]
+      tz    := TimeZone(pmap.vals.first.rec["tz"])  // points should have same tz
+      start := Duration.now
+
+      // update hisStatus to 'syncing'
+      pmap.vals.each |p| {
+        proj.commit(Diff(p.rec, syncing, Diff.forceTransient))
+      }
+
+      // TODO FIXIT: support for date span
+      // request trend data and append to his item array
       span.eachDay |date|
       {
-        client.trendsEach(date, sid, pid, tz) |ts,val|
+        client.trendsEach(date, sid, pids, tz) |ts,pid,val|
         {
           // skip 'null' and 'na' vals
-          pval := NovantUtil.toConnPointVal(p, val, false)
-          if (pval != null) items.add(HisItem(ts, pval))
+          pt   := pmap[pid]
+          pval := NovantUtil.toConnPointVal(pt, val, false)
+          if (pval == null) return
+
+          // append his item
+          items := hmap[pid] ?: HisItem[,]
+          items.add(HisItem(ts, pval))
+          hmap[pid] = items
         }
       }
-      return p.updateHisOk(items, span)
+
+      // update his
+      hmap.each |items,pid|
+      {
+        pt := pmap[pid]
+        pt.updateHisOk(items, span)
+      }
+
+      end := Duration.now
+      dur := (end - start).toLocale
+      log.info("syncHis OK: [${sid}, ${span}, ${pmap.size} points, ${dur}]")
     }
-    catch (Err err) { return p.updateHisErr(err) }
+    catch (Err err)
+    {
+      // if req fails mark all points in fault
+      pmap.vals.each |p| { p.updateHisErr(err) }
+      log.err("syncHis failed: [${sid}, ${span}]", err)
+    }
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -206,17 +256,20 @@ class NovantConn : Conn
   }
 
 //////////////////////////////////////////////////////////////////////////
-// Fields
+// Support
 //////////////////////////////////////////////////////////////////////////
 
-  // vals counter to throttle /values API reqs
-  private Int lastValsTicks
-
   ** Get an authenicated NovantClient instance.
-  internal NovantClient client()
+  private NovantClient client()
   {
     apiKey := ext.proj.passwords.get("${rec.id} apiKey")
     if (apiKey == null) throw ArgErr("apiKey not found")
     return NovantClient(apiKey)
   }
+
+  private static const Dict pending := Etc.makeDict(["hisStatus":"pending"])
+  private static const Dict syncing := Etc.makeDict(["hisStatus":"syncing"])
+
+  private Duration lastVals := Duration.defVal   // vals counter to throttle /values API reqs
+  private Span:ConnPoint[] hisSyncQueue := [:]     // his sync queue
 }
