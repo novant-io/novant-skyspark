@@ -173,14 +173,22 @@ class NovantConn : Conn
     try
     {
       pids  := pmap.keys          // point_id list
+      refs  := Ref[,]             // list of backing rec ids
       hmap  := Str:HisItem[][:]   // map of point_id:HisItem[]
       tz    := TimeZone(pmap.vals.first.rec["tz"])  // points should have same tz
       start := Duration.now
 
       // update hisStatus to 'syncing'
       pmap.vals.each |p| {
+        refs.add(p.rec.id)
         proj.commit(Diff(p.rec, syncing, Diff.forceTransient))
       }
+
+      // refresh backing rec for each point (the conn.point.rec instance
+      // gets cached on conn.open; so we need to update to latest copy
+      // so we can inspect hisStar/hisEnd
+      recs := proj.readByIdsList(refs)
+      rmap := Ref:Dict[:].setList(recs) |r| { r.id }
 
       // TODO FIXIT: support for date span
       // request trend data and append to his item array
@@ -192,6 +200,11 @@ class NovantConn : Conn
           pt   := pmap[pid]
           pval := NovantUtil.toConnPointVal(pt, val, false)
           if (pval == null) return
+
+          // skip ts if < hisEnd; must use rmap; see above
+          rec    := rmap[pt.rec.id]
+          hisEnd := rec["hisEnd"] as DateTime
+          if (hisEnd != null && ts <= hisEnd) return
 
           // append his item
           items := hmap[pid] ?: HisItem[,]
