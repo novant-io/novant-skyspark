@@ -8,7 +8,7 @@ or more Novant devices into SkySpark easily and efficiently.
 Each Novant device is modeled 1:1 with a `novantConn` rec, which stores API
 access credentials and information used to maintain synchronization:
 
-  * `apiKey`: the Novant API key used to access this device
+  * `novantApiKey`: the Novant API key used to access this device
   * `novantDeviceId`: the Novant device id to synchronize
   * `novantSyncFreq`: how often a device should sync
        - `none`: do not automatically keep this device synced

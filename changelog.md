@@ -1,6 +1,7 @@
 # Changelog
 
 ## Version 0.35 (working)
+* Rename `apiKey` -> `novantApiKey`
 
 ## Version 0.34 (28-Feb-2023)
 * Optimize `curVal` to use `point_ids` allowlist

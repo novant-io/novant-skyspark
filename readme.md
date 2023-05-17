@@ -30,9 +30,9 @@ new connector:
 
     novantConn
     dis: "My Device"
-    apiKey: "***********"
+    novantApiKey: "***********"
 
-Where `apiKey` is the key you generated from the Novant platform.
+Where `novantApiKey` is the key you generated from the Novant platform.
 
 ## Cur/Write/His
 

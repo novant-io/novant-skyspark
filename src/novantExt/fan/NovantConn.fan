@@ -284,8 +284,8 @@ class NovantConn : Conn
   ** Get an authenicated NovantClient instance.
   private NovantClient client()
   {
-    apiKey := ext.proj.passwords.get("${rec.id} apiKey")
-    if (apiKey == null) throw ArgErr("apiKey not found")
+    apiKey := ext.proj.passwords.get("${rec.id} novantApiKey")
+    if (apiKey == null) throw ArgErr("novantApiKey not found")
     return NovantClient(apiKey)
   }
 
