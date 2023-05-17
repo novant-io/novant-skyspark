@@ -1,6 +1,8 @@
 # Changelog
 
-## Version 0.35 (working)
+## Version 0.36 (working)
+
+## Version 0.35 (17-May-2023)
 * Rename `apiKey` -> `novantApiKey`
 
 ## Version 0.34 (28-Feb-2023)
