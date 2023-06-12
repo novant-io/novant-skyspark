@@ -244,18 +244,18 @@ class NovantConn : Conn
 
   override Grid onLearn(Obj? arg)
   {
-    gb := GridBuilder()
-    gb.addColNames([
-      "dis","learn","point","pointAddr","kind","novantCur","novantWrite","novantHis","unit"
-    ])
+    rows := Dict[,]
 
     if (arg == null)
     {
       client.sources.each |s|
       {
-        sid := s["id"]
         dis := s["name"]
-        gb.addRow([dis, sid, null, null, null, null, null, null, null])
+        sid := s["id"]
+        rows.add(Etc.makeDict([
+          "dis":   dis,
+          "learn": sid,
+        ]))
       }
     }
     else
@@ -270,11 +270,51 @@ class NovantConn : Conn
         wrt  := p["writable"] == true ? "${id}" : null
         his  := "${id}"
         unit := p["unit"]?.toStr?.trimToNull
-        gb.addRow([dis, null, Marker.val, addr, kind, cur, wrt, his, unit])
+
+        row := [
+          "dis":         dis,
+          "learn":       null,
+          "point":       Marker.val,
+          "pointAddr":   addr,
+          "kind":        kind,
+          "novantCur":   cur,
+          "novantWrite": wrt,
+          "novantHis":   his,
+          "unit":        unit,
+        ]
+
+        // add extra tags (but never clobber if exists)
+        tags := learnTags(p)
+        tags.each |tag| {
+          if (!row.containsKey(tag)) row[tag] = Marker.val
+        }
+
+        rows.add(Etc.makeDict(row))
       }
     }
 
+    // find col names
+    cols := Str:Str[:]
+    rows.each |r| {
+      Etc.dictNames(r).each |n| {
+        cols[n] = n
+      }
+    }
+
+    // create grid
+    gb := GridBuilder()
+    gb.addColNames(cols.vals)
+    gb.addDictRows(rows)
     return gb.toGrid
+  }
+
+  private Str[] learnTags(Map map)
+  {
+    o := map["ontology"] as Map
+    if (o == null) return Str#.emptyList
+
+    h := o["haystack"] as Str
+    return h?.split(',') ?: Str#.emptyList
   }
 
 //////////////////////////////////////////////////////////////////////////

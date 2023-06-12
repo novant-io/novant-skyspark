@@ -1,6 +1,7 @@
 # Changelog
 
 ## Version 0.36 (working)
+* Support for new `ontology` field for predefined learn tags
 
 ## Version 0.35 (17-May-2023)
 * Rename `apiKey` -> `novantApiKey`
