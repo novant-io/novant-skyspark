@@ -248,18 +248,33 @@ class NovantConn : Conn
 
     if (arg == null)
     {
+      // root
+      rows.add(Etc.makeDict(["dis":"Assets",  "learn":"assets"]))
+      rows.add(Etc.makeDict(["dis":"Sources", "learn":"sources"]))
+    }
+    else if (arg == "assets")
+    {
+      // asset list
+      client.assets.each |a|
+      {
+        dis := a["name"]
+        aid := a["id"]
+        rows.add(Etc.makeDict(["dis":dis, "learn":aid]))
+      }
+    }
+    else if (arg == "sources")
+    {
+      // source list
       client.sources.each |s|
       {
         dis := s["name"]
         sid := s["id"]
-        rows.add(Etc.makeDict([
-          "dis":   dis,
-          "learn": sid,
-        ]))
+        rows.add(Etc.makeDict(["dis":dis, "learn":sid]))
       }
     }
     else
     {
+      // point list
       client.points(arg).each |p|
       {
         id   := p["id"]

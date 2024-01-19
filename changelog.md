@@ -1,6 +1,7 @@
 # Changelog
 
 ## Version 0.37 (working)
+* Support for learning points from `asset` tree
 
 ## Version 0.36 (12-Jun-2023)
 * Support for new `ontology` field for predefined learn tags

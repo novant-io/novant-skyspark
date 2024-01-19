@@ -29,6 +29,13 @@ class NovantClient
     invoke("project", [:])
   }
 
+  ** Request asset list for project. Throws 'IOErr' if request fails.
+  [Str:Obj?][] assets()
+  {
+    res := invoke("assets", [:])
+    return res["assets"]
+  }
+
   ** Request source list for project. Throws 'IOErr' if request fails.
   [Str:Obj?][] sources()
   {
@@ -36,10 +43,11 @@ class NovantClient
     return res["sources"]
   }
 
-  ** Request point list for given source. Throws 'IOErr' if request fails.
-  [Str:Obj?][] points(Str sourceId)
+  ** Request point list for given asset or source. Throws 'IOErr' if request fails.
+  [Str:Obj?][] points(Str id)
   {
-    res := invoke("points", ["source_id":sourceId])
+    req := id.startsWith("a.") ? ["asset_id":id] : ["source_id":id]
+    res := invoke("points", req)
     return res["points"]
   }
 
