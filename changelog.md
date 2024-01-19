@@ -1,6 +1,8 @@
 # Changelog
 
-## Version 0.37 (working)
+## Version 0.38 (working)
+
+## Version 0.37 (19-Jan-2024)
 * Support for learning points from `asset` tree
 
 ## Version 0.36 (12-Jun-2023)
