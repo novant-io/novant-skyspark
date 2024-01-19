@@ -258,8 +258,16 @@ class NovantConn : Conn
       client.assets.each |a|
       {
         dis := a["name"]
-        aid := a["id"]
-        rows.add(Etc.makeDict(["dis":dis, "learn":aid]))
+        sid := a["id"]
+        row := Str:Obj?["dis":dis, "learn":sid]
+
+        // add extra tags (but never clobber if exists)
+        tags := learnTags(a)
+        tags.each |tag| {
+          if (!row.containsKey(tag)) row[tag] = Marker.val
+        }
+
+        rows.add(Etc.makeDict(row))
       }
     }
     else if (arg == "sources")
