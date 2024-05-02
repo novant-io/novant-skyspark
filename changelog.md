@@ -1,6 +1,7 @@
 # Changelog
 
 ## Version 0.38 (working)
+* Update endpoint to `api.novant.io`
 
 ## Version 0.37 (19-Jan-2024)
 * Support for learning points from `asset` tree

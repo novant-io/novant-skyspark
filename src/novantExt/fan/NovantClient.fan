@@ -94,7 +94,7 @@ class NovantClient
   ** Invoke API request or throw IOErr if error.
   private Str:Obj? invoke(Str op, Str:Str args)
   {
-    c := WebClient(`https://api2.novant.io/v1/${op}`)
+    c := WebClient(`https://api.novant.io/v1/${op}`)
     c.reqHeaders["Authorization"] = "Basic " + "${apiKey}:".toBuf.toBase64
     c.reqHeaders["Accept-Encoding"] = "gzip"
     c.reqHeaders["User-Agent"] = "SkySpark/${skyVer} novantExt/${extVer}"
