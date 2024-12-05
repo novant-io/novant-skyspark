@@ -104,7 +104,7 @@ class NovantClient
     Str:Obj? json := JsonInStream(c.resStr.in).readJson
     if (c.resCode != 200)
     {
-      msg := json["err_msg"] ?: "Unexpected error"
+      msg := json["err_msg"] ?: "Unexpected error (${c.resCode})"
       throw IOErr(msg)
     }
 
