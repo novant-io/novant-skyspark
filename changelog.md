@@ -1,6 +1,6 @@
 # Changelog
 
-## Version 0.38 (working)
+## Version 0.38 (11-Dec-2024)
 * Update endpoint to `api.novant.io`
 * Fix error handling to pickup proper `msg` field
 
