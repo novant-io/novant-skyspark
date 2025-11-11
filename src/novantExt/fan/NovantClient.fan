@@ -29,6 +29,20 @@ class NovantClient
     invoke("project", [:])
   }
 
+  ** Request zone list for project. Throws 'IOErr' if request fails.
+  [Str:Obj?][] zones()
+  {
+    res := invoke("zones", [:])
+    return res["zones"]
+  }
+
+  ** Request space list for project. Throws 'IOErr' if request fails.
+  [Str:Obj?][] spaces()
+  {
+    res := invoke("spaces", [:])
+    return res["spaces"]
+  }
+
   ** Request asset list for project. Throws 'IOErr' if request fails.
   [Str:Obj?][] assets()
   {
