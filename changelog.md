@@ -1,6 +1,7 @@
 # Changelog
 
 ## Version 0.39 (working)
+* Add funcs: `novantZones/Spaces/Assets/Sources`
 
 ## Version 0.38 (11-Dec-2024)
 * Update endpoint to `api.novant.io`

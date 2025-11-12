@@ -74,3 +74,18 @@ standard SkySpark tools and with Axon using `novantSyncHis`.  For example:
 
 History sync operates by queueing 'syncHis' requests and attempting to batch
 request points in bulk to optimize API requests.
+
+API Funcs [#apiFuncs]
+*********************
+
+Several funcs are available to access the [Novant API]`https://docs.novant.io/api`
+from Axon:
+
+ - `novantZones`
+ - `novantSpaces`
+ - `novantAssets`
+ - `novantSources`
+
+Where each takes a connector instance as an argument:
+
+  read(novantConn).novantAssets
