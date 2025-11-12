@@ -1,6 +1,8 @@
 # Changelog
 
-## Version 0.39 (working)
+## Version 0.40 (working)
+
+## Version 0.39 (11-Nov-2025)
 * Add funcs: `novantZones/Spaces/Assets/Sources`
 
 ## Version 0.38 (11-Dec-2024)
