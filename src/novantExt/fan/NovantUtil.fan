@@ -52,5 +52,87 @@ internal class NovantUtil
     }
     return smap
   }
+
+  ** Convert list of rows to grid.
+  static Grid toGrid([Str:Obj?][] rows)
+  {
+    drows := Dict[,]
+    rows.each |r| { drows.add(NovantUtil.apiToDict(r)) }
+
+    // find col names
+    cmap:= Str:Str[:]
+    drows.each |r| {
+      Etc.dictNames(r).each |n| { cmap[n] = n }
+    }
+
+    // reorder
+    cols := cmap.vals.sort
+    NovantUtil.reorderCols(cols, [
+      "id",
+      "name",
+      "type",
+      "parent_zone_id",
+      "parent_zone_ids",
+      "parent_space_id",
+      "fed_by_asset_ids",
+      "contains_asset_ids",
+      "source_ids",
+      "addr",
+      "parent_asset_id",
+      "haystack",
+    ])
+
+    // create grid
+    gb := GridBuilder()
+    gb.addColNames(cols)
+    drows.each |r| { gb.addDictRow(r) }
+    return gb.toGrid
+  }
+
+  ** Convert an API response map to a SkySpark-compatible Dict.
+  internal static Dict apiToDict(Str:Obj? map)
+  {
+    cmap := Str:Obj?[:]
+    map.each |v,k|
+    {
+      switch (k)
+      {
+        // pull only and only include haystack
+        case "ontology":
+          cmap.add("haystack", ((Map)v).get("haystack"))
+
+        case "props":
+          Map p := v
+          p.each |pv,pk| { cmap.add(pk, toVal(pv)) }
+
+        default:
+          cmap.add(k, toVal(v))
+      }
+    }
+    return Etc.makeDict(cmap)
+  }
+
+  **
+  ** Reorders `cols` to match the order defined in `desired`.
+  ** Column names in `desired` that are not present in `cols`
+  ** are ignored. Any remaining columns not listed in `desired`
+  ** keep their existing order.
+  **
+  internal static Void reorderCols(Str[] cols, Str[] desired)
+  {
+    offset := 0
+    desired.each |dc|
+    {
+      if (!cols.contains(dc)) return
+      cols.moveTo(dc, offset++)
+    }
+  }
+
+  private static Obj? toVal(Obj? orig)
+  {
+    if (orig is Int)   return Number.makeInt(orig)
+    if (orig is Float) return Number.make(orig)
+    return orig
+  }
 }
 

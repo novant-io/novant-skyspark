@@ -64,5 +64,33 @@ const class NovantLib
   {
     NovantExt.cur.syncHis(proxies, range)
   }
+
+  ** Request zone list for given connector from the backing Novant project.
+  @Axon { admin = true }
+  static Grid novantZones(Obj conn)
+  {
+    NovantExt.cur.connActor(conn).send(ConnMsg("novant_zones")).get
+  }
+
+  ** Request space list for given connector from the backing Novant project.
+  @Axon { admin = true }
+  static Grid novantSpaces(Obj conn)
+  {
+    NovantExt.cur.connActor(conn).send(ConnMsg("novant_spaces")).get
+  }
+
+  ** Request asset list for given connector from the backing Novant project.
+  @Axon { admin = true }
+  static Grid novantAssets(Obj conn)
+  {
+    NovantExt.cur.connActor(conn).send(ConnMsg("novant_assets")).get
+  }
+
+  ** Request source list for given connector from the backing Novant project.
+  @Axon { admin = true }
+  static Grid novantSources(Obj conn)
+  {
+    NovantExt.cur.connActor(conn).send(ConnMsg("novant_sources")).get
+  }
 }
 
