@@ -65,6 +65,13 @@ const class NovantLib
     NovantExt.cur.syncHis(proxies, range)
   }
 
+  ** Request project information for given connector from the backing Novant project.
+  @Axon { admin = true }
+  static Grid novantProj(Obj conn)
+  {
+    NovantExt.cur.connActor(conn).send(ConnMsg("novant_proj")).get
+  }
+
   ** Request zone list for given connector from the backing Novant project.
   @Axon { admin = true }
   static Grid novantZones(Obj conn)

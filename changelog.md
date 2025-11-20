@@ -1,6 +1,7 @@
 # Changelog
 
 ## Version 0.40 (working)
+* Add func: `novantProj`
 
 ## Version 0.39 (11-Nov-2025)
 * Add funcs: `novantZones/Spaces/Assets/Sources`

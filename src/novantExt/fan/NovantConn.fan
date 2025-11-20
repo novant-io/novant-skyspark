@@ -30,6 +30,7 @@ class NovantConn : Conn
     NovantExt ext := ext
     switch (msg.id)
     {
+      case "novant_proj":    return NovantUtil.toGrid([client.proj])
       case "novant_zones":   return NovantUtil.toGrid(client.zones)
       case "novant_spaces":  return NovantUtil.toGrid(client.spaces)
       case "novant_assets":  return NovantUtil.toGrid(client.assets)
