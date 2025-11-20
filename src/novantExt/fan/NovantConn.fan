@@ -35,6 +35,7 @@ class NovantConn : Conn
       case "novant_spaces":  return NovantUtil.toGrid(client.spaces)
       case "novant_assets":  return NovantUtil.toGrid(client.assets)
       case "novant_sources": return NovantUtil.toGrid(client.sources)
+      case "novant_points":  return NovantUtil.toGrid(client.points(msg.a))
       default: return super.receive(msg)
     }
   }

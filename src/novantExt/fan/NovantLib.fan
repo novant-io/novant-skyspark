@@ -99,5 +99,12 @@ const class NovantLib
   {
     NovantExt.cur.connActor(conn).send(ConnMsg("novant_sources")).get
   }
+
+  ** Request source list for given connector from the backing Novant project.
+  @Axon { admin = true }
+  static Grid novantPoints(Obj conn, Str sourceId)
+  {
+    NovantExt.cur.connActor(conn).send(ConnMsg("novant_points", sourceId)).get
+  }
 }
 
