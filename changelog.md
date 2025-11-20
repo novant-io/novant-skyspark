@@ -1,6 +1,8 @@
 # Changelog
 
-## Version 0.40 (working)
+## Version 0.41 (working)
+
+## Version 0.40 (20-Nov-2025)
 * Add func: `novantProj()`
 * Add func: `novantPoints()`
 
