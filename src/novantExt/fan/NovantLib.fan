@@ -8,6 +8,7 @@
 //
 
 using axon
+using concurrent
 using connExt
 using folio
 using haystack
@@ -60,34 +61,21 @@ const class NovantLib
   ** job via the `ext-job::doc`.
   **
   @Axon { admin = true }
-  static Obj? novantSyncHis(Obj proxies, Obj? range := null)
+  static Void novantSyncHis(Obj proxies, Obj? range := null)
   {
-    NovantExt.cur.syncHis(proxies, range)
-  }
+    // TODO FIXIT: since we have this logic here; should
+    // we remove the delayed logic in NovantConn?
 
-  **
-  ** Batch a list of points into buckets based on the common
-  ** parent source id, and iterate each patch with callback
-  ** function.
-  **
-  @Axon { admin = true }
-  static Void novantEachBatch(Obj points, Fn fn)
-  {
-    // map to parent source
-    map  := Str:Dict[][:]
-    recs := Etc.toRecs(points)
-    recs.each |r|
+    log := NovantExt.cur.log
+    eachBatch(proxies) |sid, batch|
     {
-      sid := toSourceId(r->novantHis)
-      acc := map[sid] ?: Dict[,]
-      acc.add(r)
-      map[sid] = acc
-    }
+      // throttle API calls to avoid rate limits
+      Actor.sleep(5sec)
 
-    // iterate
-    cx   := AxonContext.curAxon
-    args := Obj?[null]
-    map.each |v| { fn.call(cx, args.set(0, v)) }
+      // queue onto actor
+      log.info("batchSyncHis [$sid, $batch.size points]")
+      NovantExt.cur.syncHis(batch, range)
+    }
   }
 
   ** Request project information for given connector from the backing Novant project.
@@ -130,6 +118,28 @@ const class NovantLib
   static Grid novantPoints(Obj conn, Str sourceId)
   {
     NovantExt.cur.connActor(conn).send(ConnMsg("novant_points", sourceId)).get
+  }
+
+  **
+  ** Batch a list of points into buckets based on the common
+  ** parent source id, and iterate each patch with callback
+  ** function.
+  **
+  private static Void eachBatch(Obj points, |Str sourceId, Dict[] batch| f)
+  {
+    // map to parent source
+    map  := Str:Dict[][:]
+    recs := Etc.toRecs(points)
+    recs.each |r|
+    {
+      sid := toSourceId(r->novantHis)
+      acc := map[sid] ?: Dict[,]
+      acc.add(r)
+      map[sid] = acc
+    }
+
+    // iterate
+    map.each |v,k| { f(k, v) }
   }
 
   ** Given a point id return the parent source id.
