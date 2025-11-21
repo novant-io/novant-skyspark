@@ -65,6 +65,31 @@ const class NovantLib
     NovantExt.cur.syncHis(proxies, range)
   }
 
+  **
+  ** Batch a list of points into buckets based on the common
+  ** parent source id, and iterate each patch with callback
+  ** function.
+  **
+  @Axon { admin = true }
+  static Void novantEachBatch(Obj points, Fn fn)
+  {
+    // map to parent source
+    map  := Str:Dict[][:]
+    recs := Etc.toRecs(points)
+    recs.each |r|
+    {
+      sid := toSourceId(r->novantHis)
+      acc := map[sid] ?: Dict[,]
+      acc.add(r)
+      map[sid] = acc
+    }
+
+    // iterate
+    cx   := AxonContext.curAxon
+    args := Obj?[null]
+    map.each |v| { fn.call(cx, args.set(0, v)) }
+  }
+
   ** Request project information for given connector from the backing Novant project.
   @Axon { admin = true }
   static Grid novantProj(Obj conn)
@@ -105,6 +130,13 @@ const class NovantLib
   static Grid novantPoints(Obj conn, Str sourceId)
   {
     NovantExt.cur.connActor(conn).send(ConnMsg("novant_points", sourceId)).get
+  }
+
+  ** Given a point id return the parent source id.
+  private static Str toSourceId(Str pointId)
+  {
+    off := pointId.indexr(".")
+    return pointId[0..<off]
   }
 }
 
