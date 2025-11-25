@@ -51,14 +51,18 @@ internal class NovantUtil
   ** Batch a list of points into buckets based on the common
   ** parent source id, and iterate each patch with callback.
   **
-  static Void eachSource(Obj proxies, |Str sourceId, Dict[] points| f)
+  static Void eachSource(Obj proxies, Str tag, |Str sourceId, Dict[] points| f)
   {
+    // map to rec list
+    recs := proxies is ConnPoint[]
+      ? ((ConnPoint[])proxies).map |pt| { pt.rec }
+      : Etc.toRecs(proxies)
+
     // map to parent source
     map  := Str:Dict[][:]
-    recs := Etc.toRecs(proxies)
-    recs.each |r|
+    recs.each |Dict r|
     {
-      sid := toSourceId(r->novantHis)
+      sid := toSourceId(r.get(tag))
       acc := map[sid] ?: Dict[,]
       acc.add(r)
       map[sid] = acc

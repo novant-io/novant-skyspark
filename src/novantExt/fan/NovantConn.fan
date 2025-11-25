@@ -64,7 +64,6 @@ class NovantConn : Conn
 
   override Void onSyncCur(ConnPoint[] points)
   {
-    /*
     try
     {
       // short-circuit if no points
@@ -75,11 +74,15 @@ class NovantConn : Conn
       if (now - lastVals < 1min) return
       this.lastVals = now
 
-      // request by source and update curVals
-      smap := NovantUtil.toSourceMap(points, "novantCur")
-      smap.each |pmap,sid|
+      // batch points into source_id buckets
+      NovantUtil.eachSource(points, "novantCur") |sid, srcPoints|
       {
+        // map points to lookup by novantCur point id
+        pmap := Str:Dict[:]
+        srcPoints.each |r| { pmap[r->novantCur] = r }
         pids := pmap.keys
+
+        // request live data
         vals := client.vals(sid, pids)
         vals.each |res,id|
         {
@@ -87,11 +90,12 @@ class NovantConn : Conn
           try
           {
             // point not found
-            pt = pmap[id]
+            rec := pmap[id]
+            pt = point(rec.id)
             if (pt == null) return
 
             // sanity check to disallow his collection
-            if (pt.rec.has("hisCollectCov") || pt.rec.has("hisCollectInterval"))
+            if (rec.has("hisCollectCov") || rec.has("hisCollectInterval"))
               throw ArgErr("hisCollect not allowed")
 
             // check remote status
@@ -100,7 +104,7 @@ class NovantConn : Conn
             if (status != "ok") throw ArgErr("Remote fault")
 
             // convert and update
-            pval := NovantUtil.toConnPointVal(pt, val)
+            pval := NovantUtil.toConnPointVal(rec, val)
             pt.updateCurOk(pval)
           }
           catch (Err err) { pt?.updateCurErr(err) }
@@ -108,7 +112,6 @@ class NovantConn : Conn
       }
     }
     catch (Err err) { close(err) }
-    */
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -174,7 +177,7 @@ class NovantConn : Conn
     setStatus(allPoints, pending)
 
     // batch points into source_id buckets
-    NovantUtil.eachSource(allPoints) |sid,srcPoints|
+    NovantUtil.eachSource(allPoints, "novantHis") |sid,srcPoints|
     {
       try
       {
