@@ -69,9 +69,6 @@ standard SkySpark tools and with Axon using `novantSyncHis`.  For example:
 
     readAll(point and novantHis).novantSyncHis(2023-02-01)
 
-History sync operates by queueing `syncHis` requests and attempting to batch
-request points in bulk to optimize API requests.
-
 ## API Funcs
 
 Several funcs are available to access the [Novant API](https://docs.novant.io/api)

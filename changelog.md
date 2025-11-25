@@ -1,6 +1,8 @@
 # Changelog
 
-## Version 0.41 (working)
+## Version 0.41 (25-Nov-2025)
+* New optimized his sync design to stay under rate limits
+* Add write back support
 
 ## Version 0.40 (20-Nov-2025)
 * Add func: `novantProj()`
