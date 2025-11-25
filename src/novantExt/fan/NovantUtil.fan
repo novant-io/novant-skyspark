@@ -73,7 +73,7 @@ internal class NovantUtil
   }
 
   ** Given a point id return the parent source id.
-  private static Str toSourceId(Str pointId)
+  internal static Str toSourceId(Str pointId)
   {
     off := pointId.indexr(".")
     return pointId[0..<off]

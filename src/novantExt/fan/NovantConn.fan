@@ -120,7 +120,6 @@ class NovantConn : Conn
 
   override Void onWrite(ConnPoint point, Obj? val, Number level)
   {
-    /*
     try
     {
       // convert to float
@@ -130,17 +129,18 @@ class NovantConn : Conn
 
       // cap priority to max 16
       pri := level.toInt
+      if (pri < 1)  pri = 1
       if (pri > 16) pri = 16
 
       // issue write
       pid := point.rec["novantWrite"]
-      client.write(deviceId, pid, fval, pri)
+      sid := NovantUtil.toSourceId(pid)
+      client.write(sid, pid, fval, pri)
 
       // update ok
       point.updateWriteOk(val, level)
     }
     catch (Err err) { point.updateWriteErr(val, level, err) }
-    */
   }
 
 //////////////////////////////////////////////////////////////////////////

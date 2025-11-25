@@ -82,6 +82,18 @@ class NovantClient
     return map
   }
 
+  ** Update a value for given point. Throws 'IOErr' if request fails.
+  Void write(Str sourceId, Str pointId, Obj? val, Int? level := null)
+  {
+    args := [
+      "source_id": sourceId,
+      "point_id":  pointId,
+      "value":     val?.toStr ?: "null",
+    ]
+    if (level != null) args["level"] = level.toStr
+    invoke("write", args)
+  }
+
   ** Request trend date for given date. Throws 'IOErr' if request fails.
   Void trendsEach(Date date, Str[] pointIds, TimeZone tz, |DateTime ts, Str pid, Obj? val| f)
   {
