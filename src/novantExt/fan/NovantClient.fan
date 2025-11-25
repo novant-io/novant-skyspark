@@ -83,13 +83,17 @@ class NovantClient
   }
 
   ** Request trend date for given date. Throws 'IOErr' if request fails.
-  Void trendsEach(Date date, Str sourceId, Str[] pointIds, TimeZone tz, |DateTime ts, Str pid, Obj? val| f)
+  Void trendsEach(Date date, Str[] pointIds, TimeZone tz, |DateTime ts, Str pid, Obj? val| f)
   {
     args := [
       "date":      date.toStr,
-      "source_id": sourceId,
       "point_ids": pointIds.join(","),
-      "tz":        tz.name
+      "tz":        tz.name,
+      // NOTE: for now always force requesting raw trend data
+      // since we want to sync the exact data into SkySpark; but
+      // if we ever add a general purpose trend query func we'll
+      // need to allow adjust this
+      "interval": "raw",
     ]
 
     res := invoke("trends", args)

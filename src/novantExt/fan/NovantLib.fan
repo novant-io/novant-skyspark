@@ -12,6 +12,7 @@ using concurrent
 using connExt
 using folio
 using haystack
+using hisExt
 using skyarcd
 
 **
@@ -63,18 +64,26 @@ const class NovantLib
   @Axon { admin = true }
   static Void novantSyncHis(Obj proxies, Obj? range := null)
   {
-    // TODO FIXIT: since we have this logic here; should
-    // we remove the delayed logic in NovantConn?
-
-    log := NovantExt.cur.log
-    eachBatch(proxies) |sid, batch|
+    // batch all points by conn and send entire batch;
+    // conn will handle optimizing batching by source_id
+    cx := Context.cur
+    NovantUtil.eachConn(proxies) |conn, connPoints|
     {
-      // throttle API calls to avoid rate limits
-      Actor.sleep(5sec)
+      // short-circuit if nothing todo
+      if (connPoints.isEmpty) return
 
-      // queue onto actor
-      log.info("batchSyncHis [$sid, $batch.size points]")
-      NovantExt.cur.syncHis(batch, range)
+      // resolve range in axon context if non-null
+      // before we pass onto conn actor
+      Span? span
+      if (range != null)
+      {
+        tz := TimeZone(connPoints.first->tz)
+        span = HisLib.toSpan(cx, range, tz)
+      }
+
+      // dispatch to conn actor
+      msg  := ConnMsg("novant_batch_sync_his", connPoints, span)
+      NovantExt.cur.connActor(conn).send(msg)
     }
   }
 
@@ -118,35 +127,6 @@ const class NovantLib
   static Grid novantPoints(Obj conn, Str sourceId)
   {
     NovantExt.cur.connActor(conn).send(ConnMsg("novant_points", sourceId)).get
-  }
-
-  **
-  ** Batch a list of points into buckets based on the common
-  ** parent source id, and iterate each patch with callback
-  ** function.
-  **
-  private static Void eachBatch(Obj points, |Str sourceId, Dict[] batch| f)
-  {
-    // map to parent source
-    map  := Str:Dict[][:]
-    recs := Etc.toRecs(points)
-    recs.each |r|
-    {
-      sid := toSourceId(r->novantHis)
-      acc := map[sid] ?: Dict[,]
-      acc.add(r)
-      map[sid] = acc
-    }
-
-    // iterate
-    map.each |v,k| { f(k, v) }
-  }
-
-  ** Given a point id return the parent source id.
-  private static Str toSourceId(Str pointId)
-  {
-    off := pointId.indexr(".")
-    return pointId[0..<off]
   }
 }
 

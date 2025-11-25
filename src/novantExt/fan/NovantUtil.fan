@@ -7,15 +7,107 @@
 //
 
 using connExt
+using folio
 using haystack
+using hisExt
+using skyarcd
 
 **
 ** NovantUtil
 **
 internal class NovantUtil
 {
+
+//////////////////////////////////////////////////////////////////////////
+// Iterators
+//////////////////////////////////////////////////////////////////////////
+
+  **
+  ** Batch a list of points into buckets based on the common
+  ** parent connector, and iterate each batch with callback.
+  **
+   static Void eachConn(Obj proxies, |Obj conn, Dict[] points| f)
+  {
+    // map to parent source
+    map  := Ref:Dict[][:]
+    recs := Etc.toRecs(proxies)
+    recs.each |r|
+    {
+      // skip if no conn or sync tag
+      if (r->novantConnRef == null) return
+      if (r->novantHis == null) return
+
+      ref := r->novantConnRef
+      acc := map[ref] ?: Dict[,]
+      acc.add(r)
+      map[ref] = acc
+    }
+
+    // iterate
+    map.each |v,k| { f(k, v) }
+  }
+
+  **
+  ** Batch a list of points into buckets based on the common
+  ** parent source id, and iterate each patch with callback.
+  **
+  static Void eachSource(Obj proxies, |Str sourceId, Dict[] points| f)
+  {
+    // map to parent source
+    map  := Str:Dict[][:]
+    recs := Etc.toRecs(proxies)
+    recs.each |r|
+    {
+      sid := toSourceId(r->novantHis)
+      acc := map[sid] ?: Dict[,]
+      acc.add(r)
+      map[sid] = acc
+    }
+
+    // iterate
+    map.each |v,k| { f(k, v) }
+  }
+
+  ** Given a point id return the parent source id.
+  private static Str toSourceId(Str pointId)
+  {
+    off := pointId.indexr(".")
+    return pointId[0..<off]
+  }
+
+//////////////////////////////////////////////////////////////////////////
+// His
+//////////////////////////////////////////////////////////////////////////
+
+  ** Given a list of points find the span
+  ** needed to satisfy a his sync.
+  static Span toHisSpan(Dict[] points)
+  {
+    if (points.isEmpty) return Span.defVal
+
+    // all points should have the timezone
+    tz := FolioUtil.hisTz(points.first)
+
+    // find the "youngest" hisEnd time
+    now := DateTime.now.toTimeZone(tz).floor(1min)
+    DateTime? last
+    points.each |p|
+    {
+      hisEnd := p["hisEnd"] as DateTime
+      if (hisEnd == null) return
+      if (last == null) last = hisEnd
+      else last = (last < hisEnd) ? last : hisEnd
+    }
+
+    // if not hisEnd found default to last 5days
+    if (last == null) last = now - 5day
+
+    // Novant use 1min granulatiry; so add 1min from last sync
+    return Span(last+1min, now)
+  }
+
   ** Convert Novant API value to SkySpark ConnPoint value.
-  static Obj? toConnPointVal(ConnPoint p, Obj? val, Bool checked := true)
+  static Obj? toConnPointVal(Dict rec, Obj? val, Bool checked := true)
   {
     // check fault (TODO: pull thru error codes?)
     if (val isnot Float)
@@ -25,7 +117,7 @@ internal class NovantUtil
     }
 
     // convert based on rec->kind
-    kind := p.rec["kind"]
+    kind := rec["kind"]
     switch (kind)
     {
       case "Bool":   return val == 0f ? false : true
@@ -34,24 +126,9 @@ internal class NovantUtil
     }
   }
 
-  ** Given a list of 'ConnPoint' return a map organized by source
-  ** id using the specified reference tag.
-  static Str:[Str:ConnPoint] toSourceMap(ConnPoint[] points, Str tag)
-  {
-    smap := Str:[Str:ConnPoint][:]
-    points.each |p|
-    {
-      id := p.rec[tag]
-      if (id != null)
-      {
-        sid  := "s." + id.toStr.split('.')[1]
-        pmap := smap[sid] ?: Str:ConnPoint[:]
-        pmap[id] = p
-        smap[sid] = pmap
-      }
-    }
-    return smap
-  }
+//////////////////////////////////////////////////////////////////////////
+// Grid
+//////////////////////////////////////////////////////////////////////////
 
   ** Convert list of rows to grid.
   static Grid toGrid([Str:Obj?][] rows)

@@ -3,10 +3,11 @@
 // Licensed under the MIT License
 //
 // History:
-//   18 Nov 2019   Andy Frank   Creation
+//   18 Nov 2019  Andy Frank  Creation
 //    8 Dec 2022  Andy Frank  Update to Apollo
 //
 
+using concurrent
 using connExt
 using folio
 using haystack
@@ -30,12 +31,17 @@ class NovantConn : Conn
     NovantExt ext := ext
     switch (msg.id)
     {
+      // API access
       case "novant_proj":    return NovantUtil.toGrid([client.proj])
       case "novant_zones":   return NovantUtil.toGrid(client.zones)
       case "novant_spaces":  return NovantUtil.toGrid(client.spaces)
       case "novant_assets":  return NovantUtil.toGrid(client.assets)
       case "novant_sources": return NovantUtil.toGrid(client.sources)
       case "novant_points":  return NovantUtil.toGrid(client.points(msg.a))
+
+      // SkySpark
+      case "novant_batch_sync_his": doBatchSyncHis(msg.a, msg.b); return null
+
       default: return super.receive(msg)
     }
   }
@@ -58,6 +64,7 @@ class NovantConn : Conn
 
   override Void onSyncCur(ConnPoint[] points)
   {
+    /*
     try
     {
       // short-circuit if no points
@@ -101,6 +108,7 @@ class NovantConn : Conn
       }
     }
     catch (Err err) { close(err) }
+    */
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -138,110 +146,112 @@ class NovantConn : Conn
 
   override Obj? onSyncHis(ConnPoint p, Span origSpan)
   {
-    // update status to pending
-    proj.commit(Diff(p.rec, pending, Diff.forceTransient))
+    //
+    // NOTE: we do not use this method since we need to see the
+    // entire request in order to batch points by source_id to
+    // optimize API requests
+    //
+    // It seems all the tooling uses reflection to invoke
+    // {ext}.{ext}SyncHis; so we use that method to route to our
+    // batch impl on the parent connector actor
+    //
+    // See: doBatchSyncHis()
+    //
 
-    // floor span to nearest minute to align queue keys
-    span := Span(floorTsMin(origSpan.start), floorTsMin(origSpan.end))
-
-    // queue for next sync
-    acc := hisSyncQueue[span] ?: ConnPoint[,]
-    if (acc.find |x| { x.id == p.id } == null) acc.add(p)
-    hisSyncQueue[span] = acc
+    throw ArgErr("NovantConn.onSyncHis not supported; use novantHisSync()")
     return null
   }
 
-  override Void onHouseKeeping()
+  private Void doBatchSyncHis(Dict[] allPoints, Span? range)
   {
-    try
-    {
-      // short-circuit if nothing to sync
-      if (hisSyncQueue.isEmpty) return
+    log.info("syncHis $allPoints.size records [range:$range] ...")
 
-      // iterate queue
-      hisSyncQueue.each |points, span|
+    // track success/failure
+    oks   := 0
+    fails := 0
+
+    // update to pending
+    setStatus(allPoints, pending)
+
+    // batch points into source_id buckets
+    NovantUtil.eachSource(allPoints) |sid,srcPoints|
+    {
+      try
       {
-        // batch by source
-        smap := NovantUtil.toSourceMap(points, "novantHis")
-        smap.each |pmap,sid| { doSyncHis(span, sid, pmap) }
-      }
-    }
-    catch (Err err) { close(err) }
-    finally
-    {
-      // for now to be safe always flush queue
-      hisSyncQueue.clear
-    }
-  }
+        start := Duration.now
+        span  := range ?: NovantUtil.toHisSpan(srcPoints)
+        log.info("syncHis source:${sid} [$srcPoints.size points, span:$span] ...")
 
-  private Void doSyncHis(Span span, Str sid, Str:ConnPoint pmap)
-  {
-    try
-    {
-      pids  := pmap.keys          // point_id list
-      refs  := Ref[,]             // list of backing rec ids
-      hmap  := Str:HisItem[][:]   // map of point_id:HisItem[]
-      tz    := TimeZone(pmap.vals.first.rec["tz"])  // points should have same tz
-      start := Duration.now
+        // update to in syncing
+        setStatus(srcPoints, syncing)
 
-      // update hisStatus to 'syncing'
-      pmap.vals.each |p| {
-        refs.add(p.rec.id)
-        proj.commit(Diff(p.rec, syncing, Diff.forceTransient))
-      }
+        // map points to lookup by novantHis point id
+        pmap := Str:Dict[:]
+        srcPoints.each |r| { pmap[r->novantHis] = r }
+        pids := pmap.keys.sort
+        tz   := TimeZone(srcPoints.first->tz)
 
-      // refresh backing rec for each point (the conn.point.rec instance
-      // gets cached on conn.open; so we need to update to latest copy
-      // so we can inspect hisStar/hisEnd
-      recs := proj.readByIdsList(refs)
-      rmap := Ref:Dict[:].setList(recs) |r| { r.id }
+        // pre-populate hmap since we need an entry
+        // for every point in order to reset status
+        hmap := Str:HisItem[][:]
+        pids.each |pid| { hmap[pid] = HisItem[,] }
 
-      // TODO FIXIT: support for date span
-      // request trend data and append to his item array
-      span.eachDay |date|
-      {
-        client.trendsEach(date, sid, pids, tz) |ts,pid,val|
+        // TODO FIXIT: support for date span
+        // request trend data and append to his item array
+        span.eachDay |date|
         {
-          // skip 'null' and 'na' vals
-          pt   := pmap[pid]
-          pval := NovantUtil.toConnPointVal(pt, val, false)
-          if (pval == null) return
+          // throttle requests to keep under 1000/reqs/5min
+          Actor.sleep(500ms)
 
-          // skip ts if < hisEnd; must use rmap; see above
-          rec    := rmap[pt.rec.id]
-          hisEnd := rec["hisEnd"] as DateTime
-          if (hisEnd != null && ts <= hisEnd) return
+          // request trends for date
+          client.trendsEach(date, pids, tz) |ts,pid,val|
+          {
+            // skip 'null' and 'na' vals
+            rec  := pmap[pid]
+            pval := NovantUtil.toConnPointVal(rec, val, false)
+            if (pval == null) return
 
-          // append his item
-          items := hmap[pid] ?: HisItem[,]
-          items.add(HisItem(ts, pval))
-          hmap[pid] = items
+            // skip ts if < hisEnd
+            hisEnd := rec["hisEnd"] as DateTime
+            if (hisEnd != null && ts <= hisEnd) return
+
+            // append his item
+            items := hmap[pid]
+            items.add(HisItem(ts, pval))
+            hmap[pid] = items
+          }
         }
-      }
 
-      // update his
-      hmap.each |items,pid|
+        // update his
+        hmap.each |items,pid|
+        {
+          rec := pmap[pid]
+          pt  := point(rec.id)
+          pt.updateHisOk(items, span)
+        }
+
+        // update oks
+        oks += srcPoints.size
+        dur := Duration.now - start
+        log.info("syncHis source:${sid} OK [${dur.toLocale}]")
+      }
+      catch (Err err)
       {
-        pt := pmap[pid]
-        pt.updateHisOk(items, span)
+        log.err("syncHis FAIL ${sid}: $err.msg", err)
+        fails += srcPoints.size
       }
+    }
 
-      end := Duration.now
-      dur := (end - start).toLocale
-      log.info("syncHis OK: [${sid}, ${span}, ${pmap.size} points, ${dur}]")
-    }
-    catch (Err err)
-    {
-      // if req fails mark all points in fault
-      pmap.vals.each |p| { p.updateHisErr(err) }
-      log.err("syncHis failed: [${sid}, ${span}]", err)
-    }
+    // all done!
+    log.info("syncHis DONE: $oks OK; $fails FAIL")
   }
 
-  private DateTime floorTsMin(DateTime orig)
+  ** Set transient status on given points.
+  private Void setStatus(Dict[] points, Dict status)
   {
-    t := Time(orig.hour, orig.min, 0)
-    return orig.date.toDateTime(t, orig.tz)
+    diffs := Diff[,]
+    points.each |r| { diffs.add(Diff(r, status, Diff.forceTransient)) }
+    proj.commitAll(diffs)
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -362,5 +372,5 @@ class NovantConn : Conn
   private static const Dict syncing := Etc.makeDict(["hisStatus":"syncing"])
 
   private Duration lastVals := Duration.defVal   // vals counter to throttle /values API reqs
-  private Span:ConnPoint[] hisSyncQueue := [:]   // his sync queue
+  // private Span:ConnPoint[] hisSyncQueue := [:]   // his sync queue
 }

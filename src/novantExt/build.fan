@@ -38,6 +38,7 @@ class Build : BuildPod
       "axon 3.1",
       "skyarcd 3.1",
       "connExt 3.1",
+      "hisExt 3.1",
       "ui 3.1"
     ]
     srcDirs = [`fan/`, `test/`]
