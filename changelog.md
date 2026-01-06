@@ -1,5 +1,7 @@
 # Changelog
 
+## Version 0.43 (working)
+
 ## Version 0.42 (6-Jan-2026)
 * Fix `NovantUtil.toConnPoint` checked behavior
 
