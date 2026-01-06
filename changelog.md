@@ -1,6 +1,7 @@
 # Changelog
 
 ## Version 0.42 (working)
+* Fix `NovantUtil.toConnPoint` checked behavior
 
 ## Version 0.41 (25-Nov-2025)
 * New optimized his sync design to stay under rate limits

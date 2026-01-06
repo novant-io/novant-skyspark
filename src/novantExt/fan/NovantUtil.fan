@@ -113,20 +113,28 @@ internal class NovantUtil
   ** Convert Novant API value to SkySpark ConnPoint value.
   static Obj? toConnPointVal(Dict rec, Obj? val, Bool checked := true)
   {
-    // check fault (TODO: pull thru error codes?)
-    if (val isnot Float)
+    try
     {
-      if (checked) throw IOErr("Fault")
-      return null
-    }
+      // short-circuit if no value
+      if (val == null) return null
 
-    // convert based on rec->kind
-    kind := rec["kind"]
-    switch (kind)
+      // check fault (TODO: pull thru error codes?)
+      if (val isnot Float) throw IOErr("Fault")
+
+      // convert based on rec->kind
+      kind := rec["kind"]
+      switch (kind)
+      {
+        case "Bool":   return val == 0f ? false : true
+        case "Number": return Number.make(val)
+        default:       throw IOErr("Unsupported kind '${kind}'")
+      }
+    }
+    catch (Err err)
     {
-      case "Bool":   return val == 0f ? false : true
-      case "Number": return Number.make(val)
-      default:       throw IOErr("Unsupported kind '${kind}'")
+      if (!checked) return null
+      if (err is IOErr) throw err
+      throw IOErr("Invalid point", err)
     }
   }
 
